@@ -1,0 +1,95 @@
+.privacidad-page {
+  min-height: 100vh;
+  padding: 32px 16px 56px;
+  background:
+    radial-gradient(circle at 50% -15%, rgba(244, 223, 20, 0.1), transparent 38%),
+    var(--bg);
+}
+
+.privacidad-card {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(23, 28, 32, 0.98), rgba(18, 22, 25, 0.98));
+  box-shadow: var(--shadow-lg);
+}
+
+.privacidad-volver {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.privacidad-volver:hover {
+  color: var(--accent);
+}
+
+.privacidad-kicker {
+  margin: 38px 0 7px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.privacidad-card h1 {
+  margin: 0 0 15px;
+  color: var(--text-h);
+  font-size: clamp(30px, 6vw, 42px);
+  letter-spacing: -1px;
+  line-height: 1.05;
+}
+
+.privacidad-intro {
+  margin: 0 0 34px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.privacidad-card section {
+  padding: 22px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.privacidad-card h2 {
+  margin: 0 0 10px;
+  color: var(--text-h);
+  font-size: 18px;
+}
+
+.privacidad-card p,
+.privacidad-card li {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.privacidad-card p {
+  margin: 0 0 12px;
+}
+
+.privacidad-card p:last-child {
+  margin-bottom: 0;
+}
+
+.privacidad-card strong {
+  color: var(--text-h);
+}
+
+.privacidad-card ul {
+  margin: 0 0 12px;
+  padding-left: 21px;
+}
+
+.privacidad-nota {
+  margin: 24px 0 0 !important;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 9px 9px 0;
+  background: var(--accent-bg);
+  color: var(--text-muted) !important;
+  font-size: 12px !important;
+}

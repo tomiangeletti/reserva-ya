@@ -1,0 +1,196 @@
+.ayuda-page {
+  max-width: 980px;
+}
+
+.ayuda-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.ayuda-kicker {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.ayuda-header-mark {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(244, 223, 20, 0.4);
+  border-radius: 17px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.ayuda-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ayuda-card {
+  position: relative;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(23, 28, 32, 0.98), rgba(18, 22, 25, 0.98));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+}
+
+.ayuda-card-destacada {
+  border-color: rgba(244, 223, 20, 0.35);
+  background: linear-gradient(145deg, rgba(244, 223, 20, 0.1), rgba(23, 28, 32, 0.98) 48%);
+}
+
+.ayuda-card-ancha {
+  grid-column: 1 / -1;
+}
+
+.ayuda-card-final {
+  border-color: rgba(0, 195, 137, 0.3);
+}
+
+.ayuda-numero {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 1.5px;
+}
+
+.ayuda-card h2 {
+  margin: 0 0 10px;
+  color: var(--text-h);
+  font-size: 18px;
+  letter-spacing: -0.2px;
+}
+
+.ayuda-card p,
+.ayuda-card li {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ayuda-card p {
+  margin: 0 0 13px;
+}
+
+.ayuda-card strong {
+  color: var(--text-h);
+}
+
+.ayuda-card ol,
+.ayuda-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ayuda-card li + li {
+  margin-top: 6px;
+}
+
+.ayuda-nota {
+  margin-top: 16px !important;
+  padding-top: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text-muted) !important;
+  font-size: 13px !important;
+}
+
+.ayuda-estados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 22px;
+  margin: 16px 0 6px;
+}
+
+.ayuda-estados div {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.ayuda-estado-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.ayuda-estado-dot.pendiente {
+  background: #ffc34d;
+}
+
+.ayuda-estado-dot.confirmada,
+.ayuda-estado-dot.reservada {
+  background: var(--success);
+}
+
+.ayuda-estado-dot.fijo {
+  background: #915cdb;
+}
+
+.ayuda-alerta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 18px;
+  padding: 13px 15px;
+  border-left: 3px solid var(--success);
+  border-radius: 0 10px 10px 0;
+  background: var(--success-bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.ayuda-alerta strong {
+  color: var(--success);
+}
+
+@media (max-width: 800px) {
+  .ayuda-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ayuda-card-ancha {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .ayuda-header {
+    align-items: flex-start;
+  }
+
+  .ayuda-header-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    font-size: 21px;
+  }
+
+  .ayuda-card {
+    padding: 20px;
+  }
+
+  .ayuda-estados {
+    grid-template-columns: 1fr;
+  }
+}

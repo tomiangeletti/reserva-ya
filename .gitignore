@@ -1,0 +1,49 @@
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── Entorno / secretos ────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+
+# ── Bases de datos locales (desarrollo) ───────────────────
+*.db
+*.db.bak
+*.sqlite3
+*.sqlite
+*.sqlite-journal
+
+# ── Node / frontend ───────────────────────────────────────
+node_modules/
+dist/
+build/
+*.local
+npm-debug.log*
+yarn-error.log*
+*.log
+*.log.*
+
+# ── Vite / editor ─────────────────────────────────────────
+.vite/
+*.tsbuildinfo
+
+# ── Sistema ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ── Tests / cobertura ──────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
