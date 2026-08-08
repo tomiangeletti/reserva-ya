@@ -148,4 +148,7 @@ roles múltiples, pagos online, notificaciones y reportes.
 
 ## Licencia
 
-Distribuido bajo licencia MIT. Ver [LICENSE](LICENSE).
+Código publicado bajo una licencia personalizada de derechos reservados.
+Permite únicamente la consulta, evaluación y demostración del proyecto.
+No se permite su uso comercial, redistribución, modificación ni creación de
+trabajos derivados sin autorización previa y expresa. Ver [LICENSE](LICENSE).
