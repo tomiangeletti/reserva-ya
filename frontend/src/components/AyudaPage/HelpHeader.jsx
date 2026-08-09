@@ -4,7 +4,7 @@ function HelpHeader() {
       <div>
         <p className="ayuda-kicker">CENTRO DE AYUDA</p>
         <h1 className="admin-title">Cómo usar el sistema</h1>
-        <p className="admin-hint">Una guía rápida para administrar las reservas de El Túnel.</p>
+        <p className="admin-hint">Una guía rápida para administrar tus reservas.</p>
       </div>
       <div className="ayuda-header-mark" aria-hidden="true">?</div>
     </div>

@@ -64,8 +64,8 @@
 }
 
 .dashboard-stat.stat-highlight {
-  border-color: rgba(244, 223, 20, .34);
-  background: linear-gradient(135deg, rgba(244, 223, 20, .13), var(--panel) 58%);
+  border-color: rgba(59, 130, 246, .34);
+  background: linear-gradient(135deg, rgba(59, 130, 246, .13), var(--panel) 58%);
 }
 
 .stat-icon {

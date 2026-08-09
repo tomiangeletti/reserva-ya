@@ -24,7 +24,7 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(244, 223, 20, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.4);
   border-radius: 17px;
   background: var(--accent-bg);
   color: var(--accent);
@@ -48,8 +48,8 @@
 }
 
 .ayuda-card-destacada {
-  border-color: rgba(244, 223, 20, 0.35);
-  background: linear-gradient(145deg, rgba(244, 223, 20, 0.1), rgba(23, 28, 32, 0.98) 48%);
+  border-color: rgba(59, 130, 246, 0.35);
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(23, 28, 32, 0.98) 48%);
 }
 
 .ayuda-card-ancha {
@@ -135,7 +135,7 @@
 }
 
 .ayuda-estado-dot.pendiente {
-  background: #ffc34d;
+  background: #60a5fa;
 }
 
 .ayuda-estado-dot.confirmada,

@@ -20,10 +20,10 @@ function PrivacidadPage() {
         <Link className="privacidad-volver" to="/reservar">← Volver a reservar</Link>
         <p className="privacidad-kicker">INFORMACIÓN LEGAL</p>
         <h1>Política de privacidad</h1>
-        <p className="privacidad-intro">En El Túnel Padel Club cuidamos la privacidad de las personas que usan este sitio y tratamos sus datos de acuerdo con la Ley 25.326 de Protección de los Datos Personales.</p>
+        <p className="privacidad-intro">En Reservas ya cuidamos la privacidad de las personas que usan este sitio y tratamos sus datos de acuerdo con la Ley 25.326 de Protección de los Datos Personales.</p>
 
         <PrivacySection title="1. Responsable">
-          <p>El responsable del tratamiento de los datos es <strong>El Túnel Padel Club</strong>.{config?.direccion && <> El establecimiento se encuentra en {config.direccion}.</>}</p>
+          <p>El responsable del tratamiento de los datos es <strong>Reservas ya</strong>.{config?.direccion && <> El establecimiento se encuentra en {config.direccion}.</>}</p>
           <p>Para consultas relacionadas con tus datos personales podés comunicarte con el club por sus canales oficiales{telefono && <> o por WhatsApp al {config.telefono_whatsapp}</>}.</p>
         </PrivacySection>
         <PrivacySection title="2. Datos que recopilamos">

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import secrets
 
 import bcrypt
 import jwt
@@ -33,3 +34,6 @@ def decode_access_token(token: str) -> str:
         token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
     )
     return payload["sub"]
+
+def generate_reset_token() -> str:
+    return secrets.token_urlsafe(32)

@@ -125,7 +125,16 @@ class AdminUsuario(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=True)
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_token"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    token: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    admin_usuario_id: Mapped[int] = mapped_column(ForeignKey("admin_usuario.id"))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used: Mapped[bool] = mapped_column(default=False)
 
 class ConfiguracionClub(Base):
     __tablename__ = "configuracion_club"

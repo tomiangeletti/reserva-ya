@@ -47,3 +47,5 @@ Thumbs.db
 .coverage
 htmlcov/
 .ruff_cache/
+
+asignar_mail.py

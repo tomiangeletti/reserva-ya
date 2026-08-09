@@ -1,7 +1,10 @@
-function LoginForm({ username, password, error, loading, onUsernameChange, onPasswordChange, onSubmit, logo }) {
+import { Link } from 'react-router-dom'
+
+function LoginForm({ username, password, error, loading, onUsernameChange, onPasswordChange, onSubmit }) {
   return (
     <form className="login-card" onSubmit={onSubmit}>
-      <img className="login-logo" src={logo} alt="El Túnel" />
+      <div className="login-brand-mark">RY</div>
+      <h1 className="login-brand-name">Reservas ya</h1>
       <p className="login-subtitle">Panel de administración</p>
       <label className="login-field">
         <span className="login-label">Usuario</span>
@@ -13,6 +16,7 @@ function LoginForm({ username, password, error, loading, onUsernameChange, onPas
       </label>
       {error && <p className="login-error">{error}</p>}
       <button className="login-button" type="submit" disabled={loading}>{loading ? 'Ingresando…' : 'Ingresar'}</button>
+      <Link className="login-forgot" to="/recuperar-password">¿Olvidaste tu contraseña?</Link>
     </form>
   )
 }

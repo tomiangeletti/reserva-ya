@@ -3,7 +3,6 @@ import { Navigate, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../api/auth'
 import { apiFetch } from '../../api/client'
-import logo from '../../assets/el tunel.jpg'
 import LoginForm from '../../components/LoginPage/LoginForm'
 import './LoginPage.css'
 
@@ -48,7 +47,6 @@ function LoginPage() {
         onUsernameChange={setUsername}
         onPasswordChange={setPassword}
         onSubmit={handleSubmit}
-        logo={logo}
       />
     </div>
   )

@@ -168,6 +168,23 @@ Los endpoints públicos principales son `/api/config`, `/api/canchas`,
 `/api/disponibilidad` y `/api/reservas`. Los endpoints de administración
 requieren `Authorization: Bearer <token>`.
 
+### Recuperación de contraseña
+
+El frontend conecta el flujo de recuperación con los endpoints existentes del
+backend:
+
+- `/recuperar-password` solicita el email del administrador y envía el pedido a
+  `POST /api/auth/forgot-password`.
+- `/reset-password?token=...` permite definir la nueva contraseña y envía el
+  token junto con `new_password` a `POST /api/auth/password/reset`.
+- El login incluye el enlace para iniciar la recuperación.
+- El panel administrativo incluye `Cambiar contraseña`, que inicia el mismo
+  flujo por email.
+
+La página no almacena tokens ni contraseñas en el navegador. La contraseña se
+valida localmente para exigir al menos 8 caracteres y confirmar ambos campos;
+la validación definitiva continúa siendo responsabilidad del backend.
+
 ## Dashboard administrativo
 
 La pantalla `/admin` funciona como resumen operativo y no requiere endpoints

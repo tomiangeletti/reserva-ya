@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { CalendarDays, CircleHelp, Grid2X2, LayoutDashboard, LogOut, Settings } from 'lucide-react'
+import { CalendarDays, CircleHelp, Grid2X2, KeyRound, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 
 function AdminSidebar({ pendientes, onLogout }) {
   const links = [
@@ -7,14 +7,15 @@ function AdminSidebar({ pendientes, onLogout }) {
     { to: '/admin/reservas', label: 'Reservas', icon: CalendarDays },
     { to: '/admin/canchas', label: 'Canchas y turnos', icon: Grid2X2 },
     { to: '/admin/config', label: 'Configuración', icon: Settings },
+    { to: '/admin/cambiar-password', label: 'Cambiar contraseña', icon: KeyRound },
     { to: '/admin/ayuda', label: 'Ayuda', icon: CircleHelp },
   ]
 
   return (
     <aside className="admin-sidebar">
       <div className="sidebar-brand">
-        <span className="sidebar-mark">E</span>
-        <span className="sidebar-name">El Túnel</span>
+        <span className="sidebar-mark">RY</span>
+        <span className="sidebar-name">Reservas ya</span>
       </div>
       <nav className="sidebar-nav">
         {links.map(({ to, label, icon: Icon, end }) => (

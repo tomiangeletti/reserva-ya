@@ -1,7 +1,7 @@
 from datetime import date, datetime, time
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 ESTADO_RESERVA = ("PENDIENTE", "CONFIRMADA", "EXPIRADA", "CANCELADA")
 
@@ -157,3 +157,11 @@ class ConfiguracionClubUpdate(BaseModel):
     telefono_whatsapp: str | None = Field(default=None, max_length=30)
     hora_apertura: time | None = None
     hora_cierre: time | None = None
+
+# ---------- Password Reset ----------
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)

@@ -183,7 +183,10 @@ function ReservarPage() {
           <BookingSuccess turno={turno} config={config} formatoDia={formatoDiaLargo} formatoPrecio={formatoPrecio} whatsappUrl={linkWhatsApp()} onRestart={volverInicio} />
         )}
       </div>
-      <footer className="reservar-footer"><span>El Túnel Padel Club</span><Link to="/privacidad">Privacidad</Link></footer>
+      <footer className="reservar-footer">
+        <span>Desarrollado por <a href="https://github.com/tomiangeletti" target="_blank" rel="noreferrer">Tomas Angeletti</a></span>
+        <Link to="/privacidad">Privacidad</Link>
+      </footer>
     </main>
   )
 }

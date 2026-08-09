@@ -76,7 +76,7 @@
 }
 
 .grilla-cell.libre {
-  background: rgba(244, 223, 20, 0.04);
+  background: rgba(59, 130, 246, 0.04);
 }
 
 .grilla-libre {
@@ -126,7 +126,7 @@
 }
 
 .grilla-cell.reserva_pendiente {
-  background: rgba(255, 195, 77, 0.08);
+  background: rgba(59, 130, 246, 0.08);
 }
 
 .grilla-cell.reserva_confirmada {
@@ -145,8 +145,8 @@
 }
 
 .grilla-cell.reserva_pendiente .grilla-ocupado {
-  border: 1px solid rgba(255, 195, 77, 0.25);
-  background: rgba(255, 195, 77, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.12);
 }
 
 .grilla-cell.reserva_confirmada .grilla-ocupado {
@@ -171,8 +171,8 @@
 }
 
 .grilla-cell.reserva_pendiente .grilla-badge {
-  color: #b1750f;
-  background: rgba(255, 195, 77, 0.14);
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.14);
 }
 
 .grilla-cell.reserva_confirmada .grilla-badge {
@@ -201,7 +201,7 @@
 }
 
 .grilla-cell.reserva_pendiente .grilla-badge {
-  color: #ffc34d;
+  color: #60a5fa;
 }
 
 .grilla-cell.reserva_confirmada .grilla-badge {

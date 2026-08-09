@@ -17,5 +17,7 @@ class Settings(BaseSettings):
     admin_username: str = "admin"
     admin_password: str = "admin1234"
 
+    resend_api_key: str = ""
+
 
 settings = Settings()
