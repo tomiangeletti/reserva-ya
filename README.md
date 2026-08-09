@@ -1,8 +1,9 @@
-# El Túnel
+# Reservas ya
 
-Sistema web de reservas para un club de pádel. Permite que los jugadores
-consulten disponibilidad y soliciten turnos sin crear una cuenta, mientras el
-club administra reservas, turnos fijos y bloqueos desde un panel privado.
+Sistema web de reservas personalizable para clubes de pádel y otros negocios
+que trabajan con turnos. Permite que los clientes consulten disponibilidad y
+soliciten reservas sin crear una cuenta, mientras cada negocio administra sus
+turnos, reservas y configuración desde un panel privado.
 
 ## Funcionalidades
 
@@ -21,42 +22,60 @@ club administra reservas, turnos fijos y bloqueos desde un panel privado.
 - **Frontend:** React 19, React Router, Vite.
 - **Infraestructura:** Docker Compose, PostgreSQL 16 y Nginx.
 
-## Estructura
+## Estructura del proyecto
 
 ```text
-backend/       API, modelos, migraciones, seed y scheduler
-frontend/      Aplicación pública y panel de administración
-docker-compose.yml  Stack completo para desarrollo local
-PLAN.md        Alcance y decisiones de producto
+.
+├── backend/
+│   ├── app/
+│   │   ├── routers/             # endpoints públicos y administrativos
+│   │   ├── main.py              # aplicación FastAPI y registro de rutas
+│   │   ├── models.py            # modelos SQLAlchemy
+│   │   ├── schemas.py           # validación Pydantic
+│   │   ├── security.py          # JWT, bcrypt y tokens de recuperación
+│   │   ├── email_utils.py       # envío de emails de recuperación
+│   │   ├── slots.py             # disponibilidad y grilla de turnos
+│   │   ├── scheduler.py         # expiración automática de reservas
+│   │   ├── seed.py              # datos iniciales
+│   │   └── config.py            # configuración desde variables de entorno
+│   ├── alembic/                 # migraciones versionadas
+│   │   └── versions/
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── entrypoint.sh
+├── frontend/
+│   ├── src/
+│   │   ├── pages/               # estado y composición de cada ruta
+│   │   │   ├── admin/
+│   │   │   ├── reservar/
+│   │   │   └── privacidad/
+│   │   ├── components/          # componentes agrupados por pantalla
+│   │   │   ├── AdminLayout/
+│   │   │   ├── DashboardPage/
+│   │   │   ├── ReservasPage/
+│   │   │   ├── CanchasPage/
+│   │   │   ├── ConfiguracionPage/
+│   │   │   ├── ReservarPage/
+│   │   │   ├── PasswordResetPage/
+│   │   │   └── LoginPage/
+│   │   ├── api/                 # cliente HTTP y autenticación
+│   │   └── index.css             # variables y estilos globales
+│   ├── public/                  # favicon y recursos públicos
+│   ├── package.json
+│   ├── Dockerfile
+│   └── nginx.conf
+├── docker-compose.yml           # PostgreSQL, API y frontend
+├── .env.example                 # variables para Docker
+├── .github/workflows/ci.yml     # lint, build y validación del backend
+├── PLAN.md                      # alcance y decisiones de producto
+├── SECURITY.md                  # recomendaciones de seguridad
+├── LICENSE                      # licencia de uso del proyecto
+└── README.md
 ```
 
-### Organización del frontend
-
-La aplicación separa la lógica de cada pantalla de sus piezas visuales:
-
-```text
-frontend/src/
-├── pages/                 # estado, efectos y composición de cada ruta
-│   ├── admin/
-│   ├── reservar/
-│   └── privacidad/
-├── components/            # componentes agrupados por pantalla/feature
-│   ├── AdminLayout/
-│   ├── DashboardPage/
-│   ├── ReservasPage/
-│   ├── CanchasPage/
-│   ├── ConfiguracionPage/
-│   ├── ReservarPage/
-│   ├── LoginPage/
-│   ├── AyudaPage/
-│   └── PrivacidadPage/
-├── api/                   # cliente HTTP y autenticación
-└── assets/                # imágenes y recursos estáticos
-```
-
-Las páginas se encargan de coordinar estado, llamadas a la API y eventos. Los
-componentes reciben datos y callbacks por props, lo que permite reutilizar o
-probar cada sección sin duplicar la lógica de negocio.
+El frontend separa la lógica de cada pantalla de sus piezas visuales. Las
+páginas coordinan estado, llamadas a la API y eventos; los componentes reciben
+datos y callbacks por props para facilitar su reutilización y mantenimiento.
 
 ## Requisitos
 
