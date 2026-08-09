@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router-dom'
+import { CalendarDays, CircleHelp, Grid2X2, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 
 import { useAuth } from '../../api/auth'
 import { apiFetch } from '../../api/client'
@@ -39,9 +40,18 @@ function AdminLayout() {
         </div>
         <nav className="sidebar-nav">
           <NavLink
+            to="/admin"
+            end
+            className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
+          >
+            <LayoutDashboard size={17} strokeWidth={2} />
+            Dashboard
+          </NavLink>
+          <NavLink
             to="/admin/reservas"
             className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
           >
+            <CalendarDays size={17} strokeWidth={2} />
             Reservas
             {pendientes > 0 && <span className="sidebar-badge">{pendientes}</span>}
           </NavLink>
@@ -49,23 +59,27 @@ function AdminLayout() {
             to="/admin/canchas"
             className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
           >
+            <Grid2X2 size={17} strokeWidth={2} />
             Canchas y turnos
           </NavLink>
           <NavLink
             to="/admin/config"
             className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
           >
+            <Settings size={17} strokeWidth={2} />
             Configuración
           </NavLink>
           <NavLink
             to="/admin/ayuda"
             className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
           >
+            <CircleHelp size={17} strokeWidth={2} />
             Ayuda
           </NavLink>
         </nav>
-        <button className="sidebar-logout" onClick={logout}>
-          Cerrar sesión
+          <button className="sidebar-logout" onClick={logout}>
+            <LogOut size={17} strokeWidth={2} />
+            Cerrar sesión
         </button>
       </aside>
       <main className="admin-main">

@@ -140,6 +140,21 @@ Los endpoints públicos principales son `/api/config`, `/api/canchas`,
 `/api/disponibilidad` y `/api/reservas`. Los endpoints de administración
 requieren `Authorization: Bearer <token>`.
 
+## Dashboard administrativo
+
+La pantalla `/admin` funciona como resumen operativo y no requiere endpoints
+nuevos ni tablas adicionales. Al abrirla, consulta en paralelo:
+
+- `GET /api/reservas?filtro=hoy` para construir la agenda del día y contar las
+  reservas activas y confirmadas;
+- `GET /api/reservas/pendientes/count` para mostrar el total global de reservas
+  pendientes de confirmación.
+
+La información se actualiza automáticamente cada 30 segundos. Las reservas en
+estado `CANCELADA` o `EXPIRADA` no se muestran en la agenda ni se incluyen en
+los totales de reservas activas. Si no hay reservas, se muestra un estado vacío
+en lugar de datos de ejemplo.
+
 ## Estado del proyecto
 
 La implementación actual cubre el alcance funcional de la v1 descrito en

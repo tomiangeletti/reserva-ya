@@ -62,6 +62,11 @@
   transition: background 0.15s, color 0.15s;
 }
 
+.sidebar-link svg,
+.sidebar-logout svg {
+  flex-shrink: 0;
+}
+
 .sidebar-link:hover {
   background: var(--accent-bg);
   color: var(--text-h);

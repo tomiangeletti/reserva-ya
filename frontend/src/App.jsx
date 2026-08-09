@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AuthProvider } from './api/auth'
 import AdminLayout from './pages/admin/AdminLayout'
+import DashboardPage from './pages/admin/DashboardPage'
 import CanchasPage from './pages/admin/CanchasPage'
 import ConfiguracionPage from './pages/admin/ConfiguracionPage'
 import AyudaPage from './pages/admin/AyudaPage'
@@ -20,7 +21,7 @@ function App() {
           <Route path="/privacidad" element={<PrivacidadPage />} />
           <Route path="/admin/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="/admin/reservas" replace />} />
+            <Route index element={<DashboardPage />} />
             <Route path="reservas" element={<ReservasPage />} />
             <Route path="canchas" element={<CanchasPage />} />
             <Route path="config" element={<ConfiguracionPage />} />
