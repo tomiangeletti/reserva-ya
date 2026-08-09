@@ -30,6 +30,34 @@ docker-compose.yml  Stack completo para desarrollo local
 PLAN.md        Alcance y decisiones de producto
 ```
 
+### Organización del frontend
+
+La aplicación separa la lógica de cada pantalla de sus piezas visuales:
+
+```text
+frontend/src/
+├── pages/                 # estado, efectos y composición de cada ruta
+│   ├── admin/
+│   ├── reservar/
+│   └── privacidad/
+├── components/            # componentes agrupados por pantalla/feature
+│   ├── AdminLayout/
+│   ├── DashboardPage/
+│   ├── ReservasPage/
+│   ├── CanchasPage/
+│   ├── ConfiguracionPage/
+│   ├── ReservarPage/
+│   ├── LoginPage/
+│   ├── AyudaPage/
+│   └── PrivacidadPage/
+├── api/                   # cliente HTTP y autenticación
+└── assets/                # imágenes y recursos estáticos
+```
+
+Las páginas se encargan de coordinar estado, llamadas a la API y eventos. Los
+componentes reciben datos y callbacks por props, lo que permite reutilizar o
+probar cada sección sin duplicar la lógica de negocio.
+
 ## Requisitos
 
 Para desarrollo local se necesita Python 3.11+, Node.js 22+ y npm. Para

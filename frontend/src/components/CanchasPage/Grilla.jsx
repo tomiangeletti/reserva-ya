@@ -7,13 +7,6 @@ const ESTADO_LABEL = {
   bloqueo: 'Reservada',
 }
 
-/**
- * Tabla de todas las canchas x todos los horarios del día.
- *
- * - `data`: `[{cancha_id, cancha_nombre, slots: [{hora_inicio, estado, nombre, motivo}]}]`
- * - Cada celda libre muestra "+"; las ocupadas muestran a nombre de quién y el estado.
- * - `onCellClick(cancha, slot)` se dispara al tocar cualquier celda.
- */
 function Grilla({ data, onCellClick }) {
   const horas = data[0]?.slots?.map((s) => s.hora_inicio.slice(0, 5)) ?? []
 
@@ -23,11 +16,7 @@ function Grilla({ data, onCellClick }) {
         <thead>
           <tr>
             <th className="grilla-corner">Cancha</th>
-            {horas.map((h) => (
-              <th key={h} className="grilla-hora">
-                {h}
-              </th>
-            ))}
+            {horas.map((hora) => <th key={hora} className="grilla-hora">{hora}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -39,11 +28,7 @@ function Grilla({ data, onCellClick }) {
                 if (slot.estado === 'libre') {
                   return (
                     <td key={hora} className="grilla-cell libre">
-                      <button
-                        className="grilla-libre"
-                        title="Ocupar este turno"
-                        onClick={() => onCellClick?.(cancha, slot)}
-                      >
+                      <button className="grilla-libre" title="Ocupar este turno" onClick={() => onCellClick?.(cancha, slot)}>
                         +
                       </button>
                     </td>
@@ -51,17 +36,9 @@ function Grilla({ data, onCellClick }) {
                 }
                 return (
                   <td key={hora} className={`grilla-cell ${slot.estado}`}>
-                    <button
-                      className={`grilla-ocupado ${slot.estado}`}
-                      title="Ver detalle / liberar"
-                      onClick={() => onCellClick?.(cancha, slot)}
-                    >
-                      <span className="grilla-nombre">
-                        {slot.nombre ?? slot.motivo ?? ESTADO_LABEL[slot.estado]}
-                      </span>
-                      <span className="grilla-badge">
-                        {ESTADO_LABEL[slot.estado] ?? slot.estado}
-                      </span>
+                    <button className={`grilla-ocupado ${slot.estado}`} title="Ver detalle / liberar" onClick={() => onCellClick?.(cancha, slot)}>
+                      <span className="grilla-nombre">{slot.nombre ?? slot.motivo ?? ESTADO_LABEL[slot.estado]}</span>
+                      <span className="grilla-badge">{ESTADO_LABEL[slot.estado] ?? slot.estado}</span>
                     </button>
                   </td>
                 )
