@@ -14,7 +14,7 @@ function AdminSidebar({ pendientes, onLogout }) {
   return (
     <aside className="admin-sidebar">
       <div className="sidebar-brand">
-        <span className="sidebar-mark">RY</span>
+        <img className="sidebar-mark" src="/favicon-ry.svg" alt="RY" />
         <span className="sidebar-name">Reservas ya</span>
       </div>
       <nav className="sidebar-nav">

@@ -29,12 +29,8 @@
 .sidebar-mark {
   width: 32px;
   height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 8px;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  font-weight: 700;
+  display: block;
+  flex-shrink: 0;
 }
 
 .sidebar-name {

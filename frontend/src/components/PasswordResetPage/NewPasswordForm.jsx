@@ -1,7 +1,7 @@
 function NewPasswordForm({ password, confirmation, loading, error, success, onPasswordChange, onConfirmationChange, onSubmit }) {
   return (
     <form className="password-card" onSubmit={onSubmit}>
-      <div className="password-brand-mark">RY</div>
+      <img className="password-brand-mark" src="/favicon-ry.svg" alt="RY" />
       <p className="password-kicker">RESERVAS YA</p>
       <h1>Nueva contraseña</h1>
       <p className="password-description">Elegí una contraseña de al menos 8 caracteres para proteger tu cuenta.</p>

@@ -34,17 +34,9 @@
 }
 
 .login-brand-mark {
-  display: grid;
   width: 64px;
   height: 64px;
-  place-items: center;
-  border-radius: 18px;
-  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
-  color: #fff;
-  font-size: 21px;
-  font-weight: 900;
-  letter-spacing: -1px;
-  box-shadow: 0 10px 28px rgba(59, 130, 246, 0.24);
+  object-fit: contain;
 }
 
 .login-brand-name {
@@ -84,6 +76,39 @@
   color: var(--text-h);
   font-size: 15px;
   transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.login-input-group {
+  position: relative;
+  width: 100%;
+}
+
+.login-input-group .login-input {
+  padding-right: 44px;
+}
+
+.login-toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.login-toggle-password:hover {
+  color: var(--text-h);
+}
+
+.login-toggle-password:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .login-input:focus {

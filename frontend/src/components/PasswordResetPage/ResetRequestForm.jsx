@@ -1,7 +1,7 @@
 function ResetRequestForm({ email, loading, error, success, onEmailChange, onSubmit }) {
   return (
     <form className="password-card" onSubmit={onSubmit}>
-      <div className="password-brand-mark">RY</div>
+      <img className="password-brand-mark" src="/favicon-ry.svg" alt="RY" />
       <p className="password-kicker">RESERVAS YA</p>
       <h1>Recuperar contraseña</h1>
       <p className="password-description">Ingresá el email del administrador y te enviaremos un enlace para crear una nueva contraseña.</p>
