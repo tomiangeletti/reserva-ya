@@ -3,6 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from .database import get_db
 from .models import AdminUsuario
@@ -22,7 +23,7 @@ def get_current_admin(
         )
 
     try:
-        admin_id = int(decode_access_token(credentials.credentials))
+        admin_id = UUID(decode_access_token(credentials.credentials))
     except (InvalidTokenError, ValueError):
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,

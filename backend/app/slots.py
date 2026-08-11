@@ -1,4 +1,5 @@
 from datetime import date, datetime, time, timedelta
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -69,7 +70,7 @@ def _turno_slots(hora_inicio: time, hora_fin: time | None, horas: list[time]) ->
     return [h for h in horas if h >= hora_inicio]
 
 
-def slots_del_dia(db: Session, cancha_id: int, fecha: date) -> dict[time, dict]:
+def slots_del_dia(db: Session, cancha_id: UUID, fecha: date) -> dict[time, dict]:
     """Estado de cada slot del día para una cancha.
 
     Devuelve {hora_inicio: {estado, reserva_id, motivo, nombre}} con estado en

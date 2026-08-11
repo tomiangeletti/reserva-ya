@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, or_, select
@@ -141,7 +142,7 @@ def contar_pendientes(
 
 @router.patch("/{reserva_id}/confirmar", response_model=ReservaOut)
 def confirmar_reserva(
-    reserva_id: int,
+    reserva_id: UUID,
     admin: AdminUsuario = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ) -> Reserva:
@@ -164,7 +165,7 @@ def confirmar_reserva(
 
 @router.patch("/{reserva_id}/cancelar", response_model=ReservaOut)
 def cancelar_reserva(
-    reserva_id: int,
+    reserva_id: UUID,
     admin: AdminUsuario = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ) -> Reserva:

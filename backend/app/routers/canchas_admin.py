@@ -1,4 +1,5 @@
 from datetime import date, time, datetime, timedelta
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -37,7 +38,7 @@ from ..slots import (
 router = APIRouter(tags=["admin"])
 
 
-def _validar_cancha_y_hora(db: Session, cancha_id: int, hora) -> Cancha:
+def _validar_cancha_y_hora(db: Session, cancha_id: UUID, hora) -> Cancha:
     cancha = db.get(Cancha, cancha_id)
     if cancha is None or not cancha.activo:
         raise HTTPException(
@@ -86,7 +87,7 @@ def grilla_todas_las_canchas(
 
 @router.get("/canchas/{cancha_id}/grilla", response_model=list[SlotGrilla])
 def grilla_dia(
-    cancha_id: int,
+    cancha_id: UUID,
     fecha: date,
     admin: AdminUsuario = Depends(get_current_admin),
     db: Session = Depends(get_db),
@@ -172,7 +173,7 @@ def crear_turno_fijo(
 
 @router.delete("/turnos-fijos/{turno_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_turno_fijo(
-    turno_id: int,
+    turno_id: UUID,
     admin: AdminUsuario = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
@@ -187,7 +188,7 @@ def eliminar_turno_fijo(
 
 @router.patch("/turnos-fijos/{turno_id}", response_model=TurnoFijoOut)
 def alternar_turno_fijo(
-    turno_id: int,
+    turno_id: UUID,
     admin: AdminUsuario = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
@@ -261,7 +262,7 @@ def crear_bloqueo_puntual(
     "/bloqueos-puntuales/{bloqueo_id}", status_code=status.HTTP_204_NO_CONTENT
 )
 def eliminar_bloqueo_puntual(
-    bloqueo_id: int,
+    bloqueo_id: UUID,
     admin: AdminUsuario = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):

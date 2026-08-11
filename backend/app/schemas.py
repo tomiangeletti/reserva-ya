@@ -1,5 +1,6 @@
 from datetime import date, datetime, time
 from decimal import Decimal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -20,7 +21,7 @@ class Token(BaseModel):
 class AdminMe(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: UUID
     username: str
 
 
@@ -33,14 +34,14 @@ class CanchaCreate(BaseModel):
 class CanchaOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: UUID
     nombre: str
     activo: bool
 
 
 # ---------- Turnos fijos ----------
 class TurnoFijoCreate(BaseModel):
-    cancha_id: int
+    cancha_id: UUID
     dia_semana: int = Field(ge=0, le=6)
     hora_inicio: time
     hora_fin: time | None = None
@@ -50,8 +51,8 @@ class TurnoFijoCreate(BaseModel):
 class TurnoFijoOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    cancha_id: int
+    id: UUID
+    cancha_id: UUID
     dia_semana: int
     hora_inicio: time
     hora_fin: time | None
@@ -61,7 +62,7 @@ class TurnoFijoOut(BaseModel):
 
 # ---------- Bloqueos puntuales ----------
 class BloqueoPuntualCreate(BaseModel):
-    cancha_id: int
+    cancha_id: UUID
     fecha: date
     hora_inicio: time
     motivo: str = Field(min_length=1, max_length=200)
@@ -70,8 +71,8 @@ class BloqueoPuntualCreate(BaseModel):
 class BloqueoPuntualOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    cancha_id: int
+    id: UUID
+    cancha_id: UUID
     fecha: date
     hora_inicio: time
     motivo: str
@@ -80,7 +81,7 @@ class BloqueoPuntualOut(BaseModel):
 
 # ---------- Reservas ----------
 class ReservaCreate(BaseModel):
-    cancha_id: int
+    cancha_id: UUID
     fecha: date
     hora_inicio: time
     nombre_cliente: str = Field(min_length=1, max_length=150)
@@ -90,8 +91,8 @@ class ReservaCreate(BaseModel):
 class ReservaOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    cancha_id: int
+    id: UUID
+    cancha_id: UUID
     fecha: date
     hora_inicio: time
     nombre_cliente: str
@@ -117,13 +118,13 @@ class SlotPublico(BaseModel):
 class SlotGrilla(BaseModel):
     hora_inicio: time
     estado: str
-    reserva_id: int | None = None
+    reserva_id: UUID | None = None
     motivo: str | None = None
     nombre: str | None = None
 
 
 class CanchaGrillaOut(BaseModel):
-    cancha_id: int
+    cancha_id: UUID
     cancha_nombre: str
     slots: list[SlotGrilla]
 
