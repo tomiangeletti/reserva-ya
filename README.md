@@ -97,9 +97,10 @@ URLs disponibles:
 - Swagger: <http://localhost:8000/docs>
 - PostgreSQL: `localhost:5433`
 
-El backend aplica las migraciones y ejecuta el seed al iniciar. El seed crea
-las canchas, la configuración inicial y el usuario administrador si todavía no
-existen. Los datos quedan en el volumen `pgdata`.
+El backend aplica las migraciones al iniciar. La creación de clubes y usuarios
+administradores no se ejecuta automáticamente: debe hacerse mediante los
+comandos administrativos documentados más abajo. Los datos quedan en el
+volumen `pgdata`.
 
 ```powershell
 docker compose down       # detiene servicios, conserva datos
@@ -123,6 +124,95 @@ uvicorn app.main:app --reload
 
 La API queda disponible en <http://localhost:8000>. El archivo `backend/.env`
 es local y está excluido del repositorio.
+
+### Seed de desarrollo
+
+El seed está reservado para desarrollo local y no se ejecuta automáticamente.
+Antes de usarlo, definí `SEED_DEMO=true` en `backend/.env`:
+
+```powershell
+python -m app.seed
+```
+
+El seed prepara un club demo (`el-tunel`), su suscripción Free, un
+administrador, la configuración y tres canchas. Es idempotente y no debe
+utilizarse para provisionar clubes reales en producción.
+
+### Gestión manual de clubes
+
+Los comandos se ejecutan desde `backend` con el entorno virtual activado. Cada
+operación abre una transacción y, si falla, no deja el club parcialmente creado.
+
+#### Crear un club
+
+```powershell
+python -m app.commands.create_club `
+  --name "Club Las Palmas" `
+  --subdomain las-palmas `
+  --username admin `
+  --email admin@clublaspalmas.com `
+  --plan FREE
+```
+
+Si no se informa `--password`, el comando la solicita de forma interactiva y
+no la escribe en los logs ni en la pantalla. El plan Free crea una prueba de
+14 días. Para crear directamente un Básico, usar `--plan BASICO`.
+
+Opciones adicionales:
+
+```text
+--courts N       cantidad de canchas, por defecto 3
+--address TEXT   dirección inicial
+--alias TEXT     alias de transferencia inicial
+--price NUMBER   precio de cancha, por defecto 30000.00
+--deposit NUMBER monto de seña, por defecto 5000.00
+--open HH:MM     hora de apertura, por defecto 09:00
+--close HH:MM    hora de cierre, por defecto 23:00
+```
+
+El subdominio se utiliza como slug y debe contener únicamente letras
+minúsculas, números y guiones. El dominio completo queda:
+
+```text
+{subdominio}.reservas-ya.com.ar
+```
+
+#### Activar plan Básico
+
+La activación es manual y permanente:
+
+```powershell
+python -m app.commands.activate_basic --subdomain las-palmas
+```
+
+#### Suspender un club
+
+```powershell
+python -m app.commands.suspend_club --subdomain las-palmas
+```
+
+#### Reactivar un club
+
+```powershell
+python -m app.commands.reactivate_club --subdomain las-palmas
+```
+
+Un club Básico suspendido vuelve a `ACTIVO`. Un Free suspendido solamente
+puede volver a `TRIAL` si su prueba de 14 días todavía no expiró; si expiró,
+primero debe activarse el plan Básico.
+
+En Docker, los mismos comandos se ejecutan dentro del contenedor:
+
+```powershell
+docker compose exec backend python -m app.commands.create_club `
+  --name "Club Las Palmas" `
+  --subdomain las-palmas `
+  --username admin `
+  --email admin@clublaspalmas.com
+```
+
+No se debe agregar `--password` en comandos que puedan quedar guardados en el
+historial de la terminal; es preferible que el comando solicite la contraseña.
 
 ### Frontend
 

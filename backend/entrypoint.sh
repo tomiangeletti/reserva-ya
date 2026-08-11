@@ -23,7 +23,7 @@ PY
 # Aplica las migraciones (crea/actualiza el esquema)
 alembic upgrade head
 
-# Datos iniciales si la DB está vacía (idempotente)
-python -m app.seed
+# La creación de clubes y administradores se realiza explícitamente mediante
+# comandos administrativos; no se ejecuta ningún seed en producción.
 
 exec "$@"

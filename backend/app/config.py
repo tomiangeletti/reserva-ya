@@ -15,7 +15,9 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 480
 
     admin_username: str = "admin"
+    admin_email: str = "admin@localhost.test"
     admin_password: str = "admin1234"
+    seed_demo: bool = False
 
     resend_api_key: str = ""
 
