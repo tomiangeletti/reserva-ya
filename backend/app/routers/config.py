@@ -3,21 +3,29 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..deps import get_current_admin
-from ..models import AdminUsuario, ConfiguracionClub
+from ..models import ConfiguracionClub
 from ..schemas import (
     ConfiguracionClubOut,
     ConfiguracionClubUpdate,
 )
 from ..slots import SinConfiguracionError, get_configuracion
+from ..tenant import (
+    AdminTenant,
+    PublicTenant,
+    get_current_admin_tenant,
+    get_public_tenant,
+)
 
 router = APIRouter(prefix="/config", tags=["config"])
 
 
 @router.get("", response_model=ConfiguracionClubOut)
-def obtener_configuracion(db: Session = Depends(get_db)):
+def obtener_configuracion(
+    db: Session = Depends(get_db),
+    tenant: PublicTenant = Depends(get_public_tenant),
+):
     try:
-        config = get_configuracion(db)
+        config = get_configuracion(db, tenant.club.id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
     return config
@@ -26,10 +34,14 @@ def obtener_configuracion(db: Session = Depends(get_db)):
 @router.patch("", response_model=ConfiguracionClubOut)
 def actualizar_configuracion(
     payload: ConfiguracionClubUpdate,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    config = db.scalar(select(ConfiguracionClub).limit(1))
+    config = db.scalar(
+        select(ConfiguracionClub).where(
+            ConfiguracionClub.club_id == tenant.club.id,
+        )
+    )
     if config is None:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,

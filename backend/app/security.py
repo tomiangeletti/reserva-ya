@@ -7,6 +7,7 @@ import jwt
 from .config import settings
 
 
+
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -37,3 +38,4 @@ def decode_access_token(token: str) -> str:
 
 def generate_reset_token() -> str:
     return secrets.token_urlsafe(32)
+

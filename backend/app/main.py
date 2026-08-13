@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from . import models  # noqa: F401  (registra las tablas en Base.metadata)
 from .routers import auth, canchas, canchas_admin, config, disponibilidad, reservas
 from .scheduler import iniciar_scheduler
+from .config import settings
 
 
 @asynccontextmanager
@@ -13,9 +14,16 @@ async def lifespan(app: FastAPI):
     yield
     scheduler.shutdown()
 
+is_production = settings.environment == "production"
 
-app = FastAPI(title="El Túnel API", version="0.1.0", lifespan=lifespan)
-
+app = FastAPI(
+    title="ReservasYa! API",
+    version="1.1.0",
+    lifespan=lifespan,
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json",
+)
 app.include_router(auth.router, prefix="/api")
 app.include_router(canchas.router, prefix="/api")
 app.include_router(config.router, prefix="/api")

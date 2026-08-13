@@ -49,3 +49,6 @@ htmlcov/
 .ruff_cache/
 
 asignar_mail.py
+login.json
+reserva.json
+reset.json

@@ -7,8 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..deps import get_current_admin
-from ..models import AdminUsuario, Cancha, Reserva
+from ..models import Cancha, Reserva
 from ..schemas import (
     ReservaAdminOut,
     ReservaCreate,
@@ -16,6 +15,7 @@ from ..schemas import (
     ReservasPendientesCount,
 )
 from ..slots import SinConfiguracionError, get_configuracion, slots_del_dia
+from ..tenant import AdminTenant, PublicTenant, get_current_admin_tenant, get_public_tenant
 
 router = APIRouter(prefix="/reservas", tags=["reservas"])
 
@@ -23,8 +23,18 @@ TIMEOUT_MINUTOS = 30
 
 
 @router.post("", response_model=ReservaOut, status_code=status.HTTP_201_CREATED)
-def crear_reserva(payload: ReservaCreate, db: Session = Depends(get_db)) -> Reserva:
-    cancha = db.get(Cancha, payload.cancha_id)
+def crear_reserva(
+    payload: ReservaCreate,
+    db: Session = Depends(get_db),
+    tenant: PublicTenant = Depends(get_public_tenant),
+) -> Reserva:
+    cancha = db.scalar(
+        select(Cancha).where(
+            Cancha.id == payload.cancha_id,
+            Cancha.club_id == tenant.club.id,
+            Cancha.activo.is_(True),
+        )
+    )
     if cancha is None or not cancha.activo:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Cancha no encontrada o inactiva"
@@ -37,12 +47,17 @@ def crear_reserva(payload: ReservaCreate, db: Session = Depends(get_db)) -> Rese
         )
 
     try:
-        config = get_configuracion(db)
+        config = get_configuracion(db, tenant.club.id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
     try:
-        slots = slots_del_dia(db, payload.cancha_id, payload.fecha)
+        slots = slots_del_dia(
+            db,
+            payload.cancha_id,
+            payload.fecha,
+            club_id=tenant.club.id,
+        )
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
@@ -57,6 +72,7 @@ def crear_reserva(payload: ReservaCreate, db: Session = Depends(get_db)) -> Rese
 
     ahora = datetime.now(timezone.utc)
     reserva = Reserva(
+        club_id=tenant.club.id,
         cancha_id=payload.cancha_id,
         fecha=payload.fecha,
         hora_inicio=payload.hora_inicio,
@@ -84,7 +100,7 @@ def crear_reserva(payload: ReservaCreate, db: Session = Depends(get_db)) -> Rese
 def listar_reservas(
     filtro: str = "todas",
     busqueda: str | None = None,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
     if filtro not in ("hoy", "proximas", "todas"):
@@ -95,7 +111,7 @@ def listar_reservas(
 
     query = select(Reserva, Cancha.nombre).join(
         Cancha, Reserva.cancha_id == Cancha.id
-    )
+    ).where(Reserva.club_id == tenant.club.id)
     hoy = datetime.now().date()
 
     if filtro == "hoy":
@@ -129,13 +145,16 @@ def listar_reservas(
 
 @router.get("/pendientes/count", response_model=ReservasPendientesCount)
 def contar_pendientes(
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
     cantidad = db.scalar(
         select(func.count())
         .select_from(Reserva)
-        .where(Reserva.estado == "PENDIENTE")
+        .where(
+            Reserva.club_id == tenant.club.id,
+            Reserva.estado == "PENDIENTE",
+        )
     )
     return ReservasPendientesCount(count=cantidad or 0)
 
@@ -143,10 +162,15 @@ def contar_pendientes(
 @router.patch("/{reserva_id}/confirmar", response_model=ReservaOut)
 def confirmar_reserva(
     reserva_id: UUID,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ) -> Reserva:
-    reserva = db.get(Reserva, reserva_id)
+    reserva = db.scalar(
+        select(Reserva).where(
+            Reserva.id == reserva_id,
+            Reserva.club_id == tenant.club.id,
+        )
+    )
     if reserva is None:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Reserva no encontrada"
@@ -166,10 +190,15 @@ def confirmar_reserva(
 @router.patch("/{reserva_id}/cancelar", response_model=ReservaOut)
 def cancelar_reserva(
     reserva_id: UUID,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ) -> Reserva:
-    reserva = db.get(Reserva, reserva_id)
+    reserva = db.scalar(
+        select(Reserva).where(
+            Reserva.id == reserva_id,
+            Reserva.club_id == tenant.club.id,
+        )
+    )
     if reserva is None:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Reserva no encontrada"

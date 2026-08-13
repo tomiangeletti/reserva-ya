@@ -7,9 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..deps import get_current_admin
 from ..models import (
-    AdminUsuario,
     BloqueoPuntual,
     Cancha,
     Reserva,
@@ -34,18 +32,30 @@ from ..slots import (
     slots_del_dia,
     hora_fin_valida,
 )
+from ..tenant import AdminTenant, get_current_admin_tenant
 
 router = APIRouter(tags=["admin"])
 
 
-def _validar_cancha_y_hora(db: Session, cancha_id: UUID, hora) -> Cancha:
-    cancha = db.get(Cancha, cancha_id)
+def _validar_cancha_y_hora(
+    db: Session,
+    cancha_id: UUID,
+    hora,
+    club_id: UUID,
+) -> Cancha:
+    cancha = db.scalar(
+        select(Cancha).where(
+            Cancha.id == cancha_id,
+            Cancha.club_id == club_id,
+            Cancha.activo.is_(True),
+        )
+    )
     if cancha is None or not cancha.activo:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Cancha no encontrada o inactiva"
         )
     try:
-        config = get_configuracion(db)
+        config = get_configuracion(db, club_id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
     if hora not in generar_horas(config.hora_apertura, config.hora_cierre):
@@ -68,11 +78,11 @@ def _slot_out(hora: time, info: dict) -> SlotGrilla:
 @router.get("/canchas/grilla", response_model=list[CanchaGrillaOut])
 def grilla_todas_las_canchas(
     fecha: date,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
     try:
-        datos = grilla_de_dia(db, fecha)
+        datos = grilla_de_dia(db, fecha, club_id=tenant.club.id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
     return [
@@ -89,16 +99,27 @@ def grilla_todas_las_canchas(
 def grilla_dia(
     cancha_id: UUID,
     fecha: date,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    cancha = db.get(Cancha, cancha_id)
+    cancha = db.scalar(
+        select(Cancha).where(
+            Cancha.id == cancha_id,
+            Cancha.club_id == tenant.club.id,
+            Cancha.activo.is_(True),
+        )
+    )
     if cancha is None:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Cancha no encontrada"
         )
     try:
-        slots = slots_del_dia(db, cancha_id, fecha)
+        slots = slots_del_dia(
+            db,
+            cancha_id,
+            fecha,
+            club_id=tenant.club.id,
+        )
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
     return [_slot_out(hora, info) for hora, info in sorted(slots.items())]
@@ -106,13 +127,13 @@ def grilla_dia(
 
 @router.get("/turnos-fijos", response_model=list[TurnoFijoOut])
 def listar_turnos_fijos(
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
     return db.scalars(
-        select(TurnoFijo).order_by(
-            TurnoFijo.dia_semana, TurnoFijo.hora_inicio
-        )
+        select(TurnoFijo)
+        .where(TurnoFijo.club_id == tenant.club.id)
+        .order_by(TurnoFijo.dia_semana, TurnoFijo.hora_inicio)
     ).all()
 
 
@@ -121,12 +142,17 @@ def listar_turnos_fijos(
 )
 def crear_turno_fijo(
     payload: TurnoFijoCreate,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    _validar_cancha_y_hora(db, payload.cancha_id, payload.hora_inicio)
+    _validar_cancha_y_hora(
+        db,
+        payload.cancha_id,
+        payload.hora_inicio,
+        tenant.club.id,
+    )
     try:
-        config = get_configuracion(db)
+        config = get_configuracion(db, tenant.club.id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
     horas = generar_horas(config.hora_apertura, config.hora_cierre)
@@ -146,6 +172,7 @@ def crear_turno_fijo(
     nuevos = set(_turno_slots(payload.hora_inicio, payload.hora_fin, horas))
     existentes = db.scalars(
         select(TurnoFijo).where(
+            TurnoFijo.club_id == tenant.club.id,
             TurnoFijo.cancha_id == payload.cancha_id,
             TurnoFijo.dia_semana == payload.dia_semana,
         )
@@ -157,7 +184,10 @@ def crear_turno_fijo(
                 detail="Ya existe un turno fijo que cubre ese horario",
             )
 
-    turno = TurnoFijo(**payload.model_dump())
+    turno = TurnoFijo(
+        club_id=tenant.club.id,
+        **payload.model_dump(exclude={"club_id"}),
+    )
     db.add(turno)
     try:
         db.commit()
@@ -174,10 +204,15 @@ def crear_turno_fijo(
 @router.delete("/turnos-fijos/{turno_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_turno_fijo(
     turno_id: UUID,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    turno = db.get(TurnoFijo, turno_id)
+    turno = db.scalar(
+        select(TurnoFijo).where(
+            TurnoFijo.id == turno_id,
+            TurnoFijo.club_id == tenant.club.id,
+        )
+    )
     if turno is None:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Turno fijo no encontrado"
@@ -189,10 +224,15 @@ def eliminar_turno_fijo(
 @router.patch("/turnos-fijos/{turno_id}", response_model=TurnoFijoOut)
 def alternar_turno_fijo(
     turno_id: UUID,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    turno = db.get(TurnoFijo, turno_id)
+    turno = db.scalar(
+        select(TurnoFijo).where(
+            TurnoFijo.id == turno_id,
+            TurnoFijo.club_id == tenant.club.id,
+        )
+    )
     if turno is None:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Turno fijo no encontrado"
@@ -206,10 +246,12 @@ def alternar_turno_fijo(
 @router.get("/bloqueos-puntuales", response_model=list[BloqueoPuntualOut])
 def listar_bloqueos_puntuales(
     fecha: date | None = None,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    query = select(BloqueoPuntual)
+    query = select(BloqueoPuntual).where(
+        BloqueoPuntual.club_id == tenant.club.id
+    )
     if fecha is not None:
         query = query.where(BloqueoPuntual.fecha == fecha)
     return db.scalars(
@@ -224,13 +266,19 @@ def listar_bloqueos_puntuales(
 )
 def crear_bloqueo_puntual(
     payload: BloqueoPuntualCreate,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    _validar_cancha_y_hora(db, payload.cancha_id, payload.hora_inicio)
+    _validar_cancha_y_hora(
+        db,
+        payload.cancha_id,
+        payload.hora_inicio,
+        tenant.club.id,
+    )
 
     hay_reserva = db.scalar(
         select(Reserva.id).where(
+            Reserva.club_id == tenant.club.id,
             Reserva.cancha_id == payload.cancha_id,
             Reserva.fecha == payload.fecha,
             Reserva.hora_inicio == payload.hora_inicio,
@@ -244,7 +292,9 @@ def crear_bloqueo_puntual(
         )
 
     bloqueo = BloqueoPuntual(
-        **payload.model_dump(), creado_por=admin.username
+        club_id=tenant.club.id,
+        **payload.model_dump(exclude={"club_id"}),
+        creado_por=tenant.admin.username,
     )
     db.add(bloqueo)
     try:
@@ -263,10 +313,15 @@ def crear_bloqueo_puntual(
 )
 def eliminar_bloqueo_puntual(
     bloqueo_id: UUID,
-    admin: AdminUsuario = Depends(get_current_admin),
+    tenant: AdminTenant = Depends(get_current_admin_tenant),
     db: Session = Depends(get_db),
 ):
-    bloqueo = db.get(BloqueoPuntual, bloqueo_id)
+    bloqueo = db.scalar(
+        select(BloqueoPuntual).where(
+            BloqueoPuntual.id == bloqueo_id,
+            BloqueoPuntual.club_id == tenant.club.id,
+        )
+    )
     if bloqueo is None:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, detail="Bloqueo no encontrado"

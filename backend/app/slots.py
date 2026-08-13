@@ -20,8 +20,15 @@ class SinConfiguracionError(Exception):
     pass
 
 
-def get_configuracion(db: Session) -> ConfiguracionClub:
-    config = db.scalar(select(ConfiguracionClub).limit(1))
+def get_configuracion(
+    db: Session,
+    club_id: UUID,
+) -> ConfiguracionClub:
+    config = db.scalar(
+        select(ConfiguracionClub)
+        .where(ConfiguracionClub.club_id == club_id)
+        .limit(1)
+    )
     if config is None:
         raise SinConfiguracionError("El club no tiene configuración cargada")
     return config
@@ -70,36 +77,41 @@ def _turno_slots(hora_inicio: time, hora_fin: time | None, horas: list[time]) ->
     return [h for h in horas if h >= hora_inicio]
 
 
-def slots_del_dia(db: Session, cancha_id: UUID, fecha: date) -> dict[time, dict]:
+def slots_del_dia(
+    db: Session,
+    cancha_id: UUID,
+    fecha: date,
+    club_id: UUID,
+) -> dict[time, dict]:
     """Estado de cada slot del día para una cancha.
 
     Devuelve {hora_inicio: {estado, reserva_id, motivo, nombre}} con estado en
     'libre' | 'reserva_pendiente' | 'reserva_confirmada' | 'turno_fijo' | 'bloqueo'.
     La reserva tiene prioridad sobre el resto al pintar un slot.
     """
-    config = get_configuracion(db)
+    config = get_configuracion(db, club_id)
     horas = generar_horas(config.hora_apertura, config.hora_cierre)
 
-    reservas = db.scalars(
-        select(Reserva).where(
-            Reserva.cancha_id == cancha_id,
-            Reserva.fecha == fecha,
-            Reserva.estado.in_(ESTADOS_ACTIVOS),
-        )
-    ).all()
-    bloqueos = db.scalars(
-        select(BloqueoPuntual).where(
-            BloqueoPuntual.cancha_id == cancha_id,
-            BloqueoPuntual.fecha == fecha,
-        )
-    ).all()
-    turnos = db.scalars(
-        select(TurnoFijo).where(
-            TurnoFijo.cancha_id == cancha_id,
-            TurnoFijo.activo.is_(True),
-            TurnoFijo.dia_semana == dia_semana_domingo_inicio(fecha),
-        )
-    ).all()
+    reserva_query = select(Reserva).where(
+        Reserva.club_id == club_id,
+        Reserva.cancha_id == cancha_id,
+        Reserva.fecha == fecha,
+        Reserva.estado.in_(ESTADOS_ACTIVOS),
+    )
+    bloqueo_query = select(BloqueoPuntual).where(
+        BloqueoPuntual.club_id == club_id,
+        BloqueoPuntual.cancha_id == cancha_id,
+        BloqueoPuntual.fecha == fecha,
+    )
+    turno_query = select(TurnoFijo).where(
+        TurnoFijo.club_id == club_id,
+        TurnoFijo.cancha_id == cancha_id,
+        TurnoFijo.activo.is_(True),
+        TurnoFijo.dia_semana == dia_semana_domingo_inicio(fecha),
+    )
+    reservas = db.scalars(reserva_query).all()
+    bloqueos = db.scalars(bloqueo_query).all()
+    turnos = db.scalars(turno_query).all()
 
     slots: dict[time, dict] = {
         h: {
@@ -149,16 +161,30 @@ def slots_del_dia(db: Session, cancha_id: UUID, fecha: date) -> dict[time, dict]
     return slots
 
 
-def grilla_de_dia(db: Session, fecha: date) -> list[dict]:
+def grilla_de_dia(
+    db: Session,
+    fecha: date,
+    club_id: UUID,
+) -> list[dict]:
     """Grilla de todos los slots de cada cancha activa para un día."""
     canchas = db.scalars(
-        select(Cancha).where(Cancha.activo.is_(True)).order_by(Cancha.id)
+        select(Cancha)
+        .where(
+            Cancha.club_id == club_id,
+            Cancha.activo.is_(True),
+        )
+        .order_by(Cancha.id)
     ).all()
     return [
         {
             "cancha_id": cancha.id,
             "cancha_nombre": cancha.nombre,
-            "slots": slots_del_dia(db, cancha.id, fecha),
+            "slots": slots_del_dia(
+                db,
+                cancha.id,
+                fecha,
+                club_id=club_id,
+            ),
         }
         for cancha in canchas
     ]

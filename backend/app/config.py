@@ -21,5 +21,9 @@ class Settings(BaseSettings):
 
     resend_api_key: str = ""
 
+    tenant_base_domain: str = "reservas-ya.com.ar"
+
+    environment: str = "development"
+
 
 settings = Settings()
