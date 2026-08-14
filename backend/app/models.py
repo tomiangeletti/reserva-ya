@@ -312,6 +312,7 @@ class ConfiguracionClub(Base):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
+    duracion_turno: Mapped[int] = mapped_column(Integer, nullable=False, default=90)
 
 class Club(Base):
     __tablename__ = "clubs"
