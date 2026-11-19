@@ -1,7 +1,10 @@
 import { NavLink } from 'react-router-dom'
 import { CalendarDays, CircleHelp, Grid2X2, KeyRound, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 
+import { useClub } from '../../api/club'
+
 function AdminSidebar({ pendientes, onLogout }) {
+  const club = useClub()
   const links = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/admin/reservas', label: 'Reservas', icon: CalendarDays },
@@ -15,7 +18,7 @@ function AdminSidebar({ pendientes, onLogout }) {
     <aside className="admin-sidebar">
       <div className="sidebar-brand">
         <img className="sidebar-mark" src="/favicon-ry.svg" alt="RY" />
-        <span className="sidebar-name">Reservas ya</span>
+        <span className="sidebar-name">{club?.club_nombre || 'Reservas ya'}</span>
       </div>
       <nav className="sidebar-nav">
         {links.map(({ to, label, icon: Icon, end }) => (

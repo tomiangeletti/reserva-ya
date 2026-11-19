@@ -73,9 +73,21 @@ def validar_configuracion_horaria(
     return horas
 
 
+def ahora_local() -> datetime:
+    """Fecha y hora actual en la zona horaria del club (no la del servidor)."""
+    return datetime.now(ZoneInfo(settings.club_timezone))
+
+
 def hoy_local() -> date:
-    """Fecha actual en la zona horaria del club (no la del servidor)."""
-    return datetime.now(ZoneInfo(settings.club_timezone)).date()
+    return ahora_local().date()
+
+
+def slot_ya_paso(fecha: date, hora_inicio: time) -> bool:
+    """True si el turno ya empezó (o es de un día anterior)."""
+    ahora = ahora_local()
+    if fecha != ahora.date():
+        return fecha < ahora.date()
+    return hora_inicio <= ahora.time().replace(tzinfo=None)
 
 
 def generar_horas(apertura: time, cierre: time, duracion_minutos: int) -> list[time]:

@@ -26,6 +26,13 @@ def _uuid_map(rows: list[dict]) -> dict[int, uuid.UUID]:
     return {row["id"]: uuid.uuid4() for row in rows}
 
 
+def _insertar(bind, statement, rows: list[dict]) -> None:
+    # Con una lista vacía SQLAlchemy ejecuta sin parámetros y falla:
+    # en una base nueva no hay nada que copiar.
+    if rows:
+        bind.execute(statement, rows)
+
+
 def upgrade() -> None:
     bind = op.get_bind()
     metadata = sa.MetaData()
@@ -122,45 +129,49 @@ def upgrade() -> None:
         unique=False,
     )
 
-    bind.execute(
-        sa.text(
-            """
-            INSERT INTO clubs
-                (id, nombre, slug, subdominio, activo, created_at, updated_at)
-            VALUES
-                (:id, :nombre, :slug, :subdominio, :activo, :created_at, :updated_at)
-            """
-        ),
-        {
-            "id": club_id,
-            "nombre": "El Túnel",
-            "slug": "el-tunel",
-            "subdominio": "el-tunel",
-            "activo": True,
-            "created_at": now,
-            "updated_at": now,
-        },
-    )
-    bind.execute(
-        sa.text(
-            """
-            INSERT INTO club_suscripciones
-                (id, club_id, plan, estado, trial_inicia_en, trial_expira_en,
-                 activada_en, expira_en, observaciones, created_at, updated_at)
-            VALUES
-                (:id, :club_id, 'FREE', 'TRIAL', :trial_inicia_en,
-                 :trial_expira_en, NULL, NULL, NULL, :created_at, :updated_at)
-            """
-        ),
-        {
-            "id": uuid.uuid4(),
-            "club_id": club_id,
-            "trial_inicia_en": now,
-            "trial_expira_en": now + timedelta(days=14),
-            "created_at": now,
-            "updated_at": now,
-        },
-    )
+    # El club inicial solo se crea si había datos de la versión mono-club.
+    # En una instalación nueva los clubes se crean con create_club.
+    hay_datos = any([admins, canchas, configs, bloqueos, reservas, turnos, tokens])
+    if hay_datos:
+        bind.execute(
+            sa.text(
+                """
+                INSERT INTO clubs
+                    (id, nombre, slug, subdominio, activo, created_at, updated_at)
+                VALUES
+                    (:id, :nombre, :slug, :subdominio, :activo, :created_at, :updated_at)
+                """
+            ),
+            {
+                "id": club_id,
+                "nombre": "El Túnel",
+                "slug": "el-tunel",
+                "subdominio": "el-tunel",
+                "activo": True,
+                "created_at": now,
+                "updated_at": now,
+            },
+        )
+        bind.execute(
+            sa.text(
+                """
+                INSERT INTO club_suscripciones
+                    (id, club_id, plan, estado, trial_inicia_en, trial_expira_en,
+                     activada_en, expira_en, observaciones, created_at, updated_at)
+                VALUES
+                    (:id, :club_id, 'FREE', 'TRIAL', :trial_inicia_en,
+                     :trial_expira_en, NULL, NULL, NULL, :created_at, :updated_at)
+                """
+            ),
+            {
+                "id": uuid.uuid4(),
+                "club_id": club_id,
+                "trial_inicia_en": now,
+                "trial_expira_en": now + timedelta(days=14),
+                "created_at": now,
+                "updated_at": now,
+            },
+        )
 
     # Las tablas temporales permiten copiar los datos con sus relaciones ya
     # convertidas y luego reemplazar las tablas originales en una sola transacción.
@@ -341,7 +352,8 @@ def upgrade() -> None:
     def migrated_timestamp(value: datetime | None) -> datetime:
         return value or now
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO admin_usuario_new "
             "(id, username, password_hash, email, club_id, activo, "
@@ -366,7 +378,8 @@ def upgrade() -> None:
         ],
     )
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO canchas_new "
             "(id, club_id, nombre, activo, created_at, updated_at) "
@@ -385,7 +398,8 @@ def upgrade() -> None:
         ],
     )
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO configuracion_club_new "
             "(id, club_id, direccion, alias_transferencia, "
@@ -414,7 +428,8 @@ def upgrade() -> None:
         ],
     )
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO turnos_fijos_new "
             "(id, club_id, cancha_id, dia_semana, hora_inicio, hora_fin, "
@@ -439,7 +454,8 @@ def upgrade() -> None:
         ],
     )
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO bloqueos_puntuales_new "
             "(id, club_id, cancha_id, fecha, hora_inicio, motivo, creado_por, "
@@ -462,7 +478,8 @@ def upgrade() -> None:
         ],
     )
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO reservas_new "
             "(id, club_id, cancha_id, fecha, hora_inicio, nombre_cliente, "
@@ -493,7 +510,8 @@ def upgrade() -> None:
         ],
     )
 
-    bind.execute(
+    _insertar(
+        bind,
         sa.text(
             "INSERT INTO password_reset_token_new "
             "(id, token, admin_usuario_id, expires_at, used, created_at, used_at) "

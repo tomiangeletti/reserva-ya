@@ -18,7 +18,7 @@ turnos, reservas y configuración desde un panel privado.
 
 ## Stack
 
-- **Backend:** FastAPI, SQLAlchemy 2, Pydantic 2, Alembic, PostgreSQL/SQLite.
+- **Backend:** FastAPI, SQLAlchemy 2, Pydantic 2, Alembic, PostgreSQL.
 - **Frontend:** React 19, React Router, Vite.
 - **Infraestructura:** Docker Compose, PostgreSQL 16 y Nginx.
 
@@ -109,6 +109,15 @@ docker compose down -v     # detiene servicios y elimina la base local
 
 ## Desarrollo local
 
+### Base de datos
+
+El desarrollo local usa el PostgreSQL de Docker (SQLite no está soportado).
+Desde la raíz, con el `.env` de la raíz creado:
+
+```powershell
+docker compose up -d db
+```
+
 ### Backend
 
 ```powershell
@@ -117,13 +126,32 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
+# Editar .env: DATABASE_URL con el usuario y la contraseña del .env de la raíz
 alembic upgrade head
-python -m app.seed
 uvicorn app.main:app --reload
 ```
 
 La API queda disponible en <http://localhost:8000>. El archivo `backend/.env`
 es local y está excluido del repositorio.
+
+### Probar clubes en local (multi-tenant)
+
+Cada club se resuelve por subdominio. En local se usa `localhost` como dominio
+base (`TENANT_BASE_DOMAIN=localhost`): los navegadores resuelven cualquier
+`*.localhost` a `127.0.0.1`, así que no hace falta tocar el archivo `hosts`.
+
+```text
+http://el-tunel.localhost:5173/reservar
+http://el-tunel.localhost:5173/admin/login
+```
+
+El subdominio es el que se pasó en `--subdomain` al crear el club. Si el club
+no existe, está suspendido o su prueba venció, la app muestra "Este club no
+está disponible actualmente". Para probar sin navegador:
+
+```powershell
+curl.exe -i -H "Host: el-tunel.localhost" http://localhost:8000/api/canchas
+```
 
 ### Seed de desarrollo
 
@@ -225,7 +253,7 @@ npm ci
 npm run dev
 ```
 
-La aplicación queda disponible en <http://localhost:5173>. El proxy de Vite
+La aplicación queda disponible en `http://<subdominio>.localhost:5173`. El proxy de Vite
 redirige `/api` al backend local.
 
 ## Comandos de calidad

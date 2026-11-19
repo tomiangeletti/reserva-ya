@@ -2,13 +2,16 @@ import { Link } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 
+import { useClub } from '../../api/club'
+
 function LoginForm({ username, password, error, loading, onUsernameChange, onPasswordChange, onSubmit }) {
   const [isVisible, setIsVisible] = useState(false)
+  const club = useClub()
 
   return (
     <form className="login-card" onSubmit={onSubmit}>
       <img className="login-brand-mark" src="/favicon-ry.svg" alt="RY" />
-      <h1 className="login-brand-name">Reservas ya</h1>
+      <h1 className="login-brand-name">{club?.club_nombre || 'Reservas ya'}</h1>
       <p className="login-subtitle">Panel de administración</p>
       <label className="login-field">
         <span className="login-label">Usuario</span>

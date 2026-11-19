@@ -1,4 +1,5 @@
 from html import escape
+import logging
 
 import resend
 
@@ -6,14 +7,24 @@ from .config import settings
 
 
 resend.api_key = settings.resend_api_key
+logger = logging.getLogger(__name__)
 
 FROM_ADDRESS = "no-reply@reservas-ya.com.ar"  # hasta que verifiques tu dominio propio en Resend
 BRAND_URL = "https://www.reservas-ya.com.ar"
 LOGO_URL = f"{BRAND_URL}/favicon-ry.svg"
 
 
-def send_reset_email(to_email: str, token: str) -> None:
-    reset_link = f"http://localhost:5173/reset-password?token={token}"
+def send_reset_email(to_email: str, token: str, subdominio: str) -> None:
+    # El link tiene que abrir el subdominio del club: el reset valida el tenant.
+    reset_link = f"{settings.club_url(subdominio)}/reset-password?token={token}"
+
+    if not settings.resend_api_key:
+        if settings.environment == "production":
+            raise RuntimeError("RESEND_API_KEY no está configurada.")
+        # En desarrollo no se envía nada: el link queda en el log del backend.
+        logger.warning("RESEND_API_KEY vacía; link de recuperación: %s", reset_link)
+        return
+
     safe_reset_link = escape(reset_link, quote=True)
 
     resend.Emails.send({

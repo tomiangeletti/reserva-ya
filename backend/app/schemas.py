@@ -146,6 +146,7 @@ class ConfiguracionClubOut(BaseModel):
     hora_apertura: time
     hora_cierre: time
     duracion_turno: int
+    club_nombre: str = ""
 
 
 class ConfiguracionClubUpdate(BaseModel):
@@ -163,7 +164,9 @@ class ConfiguracionClubUpdate(BaseModel):
 
 # ---------- Password Reset ----------
 class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
+    # No se usa EmailStr: rechaza dominios reservados (.test, .localhost) que
+    # create_club sí acepta. Solo se busca entre los admins existentes del club.
+    email: str = Field(min_length=3, max_length=255, pattern=r"^[^@\s]+@[^@\s]+$")
 
 class ResetPasswordRequest(BaseModel):
     token: str

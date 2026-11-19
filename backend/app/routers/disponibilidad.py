@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Cancha
 from ..schemas import SlotPublico
-from ..slots import SinConfiguracionError, slots_del_dia
+from ..slots import SinConfiguracionError, slot_ya_paso, slots_del_dia
 from ..tenant import PublicTenant, get_public_tenant
 
 router = APIRouter(prefix="/disponibilidad", tags=["disponibilidad"])
@@ -44,6 +44,9 @@ def disponibilidad(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
     return [
-        SlotPublico(hora_inicio=hora, disponible=info["estado"] == "libre")
+        SlotPublico(
+            hora_inicio=hora,
+            disponible=info["estado"] == "libre" and not slot_ya_paso(fecha, hora),
+        )
         for hora, info in sorted(slots.items())
     ]

@@ -26,6 +26,11 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@localhost.test}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
       SEED_DEMO: ${SEED_DEMO:-false}
+      TENANT_BASE_DOMAIN: ${TENANT_BASE_DOMAIN:-localhost}
+      CLUB_URL_TEMPLATE: ${CLUB_URL_TEMPLATE:-http://{subdominio}.localhost:8080}
+      CLUB_TIMEZONE: ${CLUB_TIMEZONE:-America/Argentina/Buenos_Aires}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       db:
         condition: service_healthy

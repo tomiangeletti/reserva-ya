@@ -20,8 +20,30 @@ from sqlalchemy import (
     UUID,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.types import TypeDecorator
 
 ESTADOS_ACTIVOS = ("PENDIENTE", "CONFIRMADA")
+
+
+class UTCDateTime(TypeDecorator):
+    """DateTime con zona horaria que siempre devuelve valores en UTC.
+
+    Postgres ya lo hace; SQLite pierde la zona y devuelve fechas "naive", que
+    no se pueden comparar con datetime.now(timezone.utc).
+    """
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is not None and value.tzinfo is not None:
+            value = value.astimezone(timezone.utc)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None and value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value
 
 
 class Base(DeclarativeBase):
@@ -55,12 +77,12 @@ class Cancha(Base):
     nombre: Mapped[str] = mapped_column(String(100), nullable=False)
     activo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -107,12 +129,12 @@ class TurnoFijo(Base):
     nombre: Mapped[str | None] = mapped_column(String(150))
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -158,12 +180,12 @@ class BloqueoPuntual(Base):
     motivo: Mapped[str] = mapped_column(String(200))
     creado_por: Mapped[str] = mapped_column(String(100), default="admin")
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -212,15 +234,15 @@ class Reserva(Base):
     monto_senia: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     estado: Mapped[str] = mapped_column(String(20), default="PENDIENTE")
     creado_en: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+        UTCDateTime(), default=lambda: datetime.now(timezone.utc)
     )
-    expira_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    confirmado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    expira_en: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    confirmado_en: Mapped[datetime | None] = mapped_column(UTCDateTime())
     cancelada_en: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
+        UTCDateTime()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -231,29 +253,34 @@ class Reserva(Base):
 
 class AdminUsuario(Base):
     __tablename__ = "admin_usuario"
+    __table_args__ = (
+        # Usuario y email son únicos dentro de cada club, no en toda la plataforma.
+        UniqueConstraint("club_id", "username", name="uq_admin_usuario_club_username"),
+        UniqueConstraint("club_id", "email", name="uq_admin_usuario_club_email"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    username: Mapped[str] = mapped_column(String(50), index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
     club_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("clubs.id", ondelete="CASCADE"), unique=True, nullable=False
     )
     activo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-    ultimo_login_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ultimo_login_en: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
 
     club: Mapped["Club"] = relationship(back_populates="admin",)
 
@@ -267,15 +294,15 @@ class PasswordResetToken(Base):
     admin_usuario_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("admin_usuario.id", ondelete="CASCADE")
     )
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False)
     used: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     used_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=True,
     )
 
@@ -302,12 +329,12 @@ class ConfiguracionClub(Base):
     hora_apertura: Mapped[time] = mapped_column(Time)
     hora_cierre: Mapped[time] = mapped_column(Time)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -329,12 +356,12 @@ class Club(Base):
     )
     activo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
@@ -378,25 +405,25 @@ class ClubSuscripcion(Base):
     plan: Mapped[str] = mapped_column(String(20), nullable=False)
     estado: Mapped[str] = mapped_column(String(20), nullable=False)
     trial_inicia_en: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
+        UTCDateTime()
     )
     trial_expira_en: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
+        UTCDateTime()
     )
     activada_en: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
+        UTCDateTime()
     )
     expira_en: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
+        UTCDateTime()
     )
     observaciones: Mapped[str | None] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        UTCDateTime(),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),

@@ -14,7 +14,13 @@ from ..schemas import (
     ReservaOut,
     ReservasPendientesCount,
 )
-from ..slots import SinConfiguracionError, get_configuracion, slots_del_dia
+from ..slots import (
+    SinConfiguracionError,
+    get_configuracion,
+    hoy_local,
+    slot_ya_paso,
+    slots_del_dia,
+)
 from ..tenant import AdminTenant, PublicTenant, get_current_admin_tenant, get_public_tenant
 
 router = APIRouter(prefix="/reservas", tags=["reservas"])
@@ -40,7 +46,7 @@ def crear_reserva(
             status.HTTP_404_NOT_FOUND, detail="Cancha no encontrada o inactiva"
         )
 
-    if payload.fecha < datetime.now().date():
+    if slot_ya_paso(payload.fecha, payload.hora_inicio):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail="No se puede reservar para el pasado.",
@@ -112,7 +118,7 @@ def listar_reservas(
     query = select(Reserva, Cancha.nombre).join(
         Cancha, Reserva.cancha_id == Cancha.id
     ).where(Reserva.club_id == tenant.club.id)
-    hoy = datetime.now().date()
+    hoy = hoy_local()
 
     if filtro == "hoy":
         query = query.where(Reserva.fecha == hoy)

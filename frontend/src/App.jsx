@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AuthProvider } from './api/auth'
+import { ClubProvider } from './api/club'
 import AdminLayout from './pages/admin/AdminLayout'
 import DashboardPage from './pages/admin/DashboardPage'
 import CanchasPage from './pages/admin/CanchasPage'
@@ -14,6 +15,7 @@ import ReservarPage from './pages/reservar/ReservarPage'
 
 function App() {
   return (
+    <ClubProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -35,6 +37,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ClubProvider>
   )
 }
 

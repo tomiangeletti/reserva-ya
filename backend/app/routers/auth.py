@@ -62,7 +62,7 @@ def forgot_password(payload: ForgotPasswordRequest, request: Request,  db: Sessi
         db.add(reset_token)
         db.commit()
 
-        send_reset_email(admin.email, token)
+        send_reset_email(admin.email, token, tenant.club.subdominio)
     return {"message": "Si el email existe, se enviara un correo para restablecer la contraseña."}
 
 

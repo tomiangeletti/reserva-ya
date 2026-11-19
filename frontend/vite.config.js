@@ -13,7 +13,7 @@ export default defineConfig({
       // En dev, /api -> backend local (en Docker lo proxya nginx)
       '/api': {
         target: 'http://localhost:8000',
-        changeOrigin: true,
+        changeOrigin: false,
       },
     },
   },

@@ -29,6 +29,12 @@ router = APIRouter(prefix="/config", tags=["config"])
 CAMPOS_HORARIOS = ("hora_apertura", "hora_cierre", "duracion_turno")
 
 
+def _config_out(config: ConfiguracionClub, club) -> ConfiguracionClubOut:
+    out = ConfiguracionClubOut.model_validate(config)
+    out.club_nombre = club.nombre
+    return out
+
+
 @router.get("", response_model=ConfiguracionClubOut)
 def obtener_configuracion(
     db: Session = Depends(get_db),
@@ -38,7 +44,7 @@ def obtener_configuracion(
         config = get_configuracion(db, tenant.club.id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
-    return config
+    return _config_out(config, tenant.club)
 
 
 def _conflictos_con_nueva_grilla(
@@ -154,4 +160,4 @@ def actualizar_configuracion(
 
     db.commit()
     db.refresh(config)
-    return config
+    return _config_out(config, tenant.club)

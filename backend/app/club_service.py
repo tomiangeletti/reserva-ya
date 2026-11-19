@@ -136,10 +136,8 @@ def create_club(
         )
     if db.scalar(select(Club).where(Club.slug == subdomain)):
         raise ClubProvisioningError(f"Ya existe un club con el slug '{subdomain}'.")
-    if db.scalar(select(AdminUsuario).where(AdminUsuario.username == username)):
-        raise ClubProvisioningError(f"Ya existe el usuario '{username}'.")
-    if db.scalar(select(AdminUsuario).where(AdminUsuario.email == email)):
-        raise ClubProvisioningError(f"Ya existe el email '{email}'.")
+    # Usuario y email solo deben ser únicos dentro del club; como el club es
+    # nuevo, no hay con qué chocar.
 
     now = _now()
     club = Club(

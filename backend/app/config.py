@@ -23,6 +23,12 @@ class Settings(BaseSettings):
 
     tenant_base_domain: str = "reservas-ya.com.ar"
     club_timezone: str = "America/Argentina/Buenos_Aires"
+    # URL pública de cada club; {subdominio} se reemplaza por el del club.
+    # En desarrollo: http://{subdominio}.localhost:5173
+    club_url_template: str = "https://{subdominio}.reservas-ya.com.ar"
+
+    def club_url(self, subdominio: str) -> str:
+        return self.club_url_template.format(subdominio=subdominio).rstrip("/")
 
     environment: str = "development"
 
