@@ -10,6 +10,7 @@ import AyudaPage from './pages/admin/AyudaPage'
 import LoginPage from './pages/admin/LoginPage'
 import PasswordResetPage from './pages/admin/PasswordResetPage'
 import ReservasPage from './pages/admin/ReservasPage'
+import NotFoundPage from './pages/notfound/NotFoundPage'
 import PrivacidadPage from './pages/privacidad/PrivacidadPage'
 import ReservarPage from './pages/reservar/ReservarPage'
 
@@ -33,7 +34,7 @@ function App() {
             <Route path="cambiar-password" element={<PasswordResetPage />} />
             <Route path="ayuda" element={<AyudaPage />} />
           </Route>
-          <Route path="*" element={<Navigate to="/reservar" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
