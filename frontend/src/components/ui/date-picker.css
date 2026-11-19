@@ -1,0 +1,196 @@
+/*
+ * DatePicker: misma estética que /reservar (superficies planas, bordes de 1px,
+ * radio de 8px, azul solo para lo elegido, Geist y Geist Mono).
+ */
+
+.dp {
+  --dp-mono: 'Geist Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --dp-borde-hover: #3a434a;
+
+  position: relative;
+  display: inline-block;
+  font-family: 'Geist', var(--sans);
+}
+
+.dp button {
+  font: inherit;
+}
+
+.dp button:focus {
+  outline: none;
+}
+
+.dp button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --- Campo --- */
+
+.dp-disparador {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 150ms;
+}
+
+.dp-disparador:hover,
+.dp-disparador.abierto {
+  border-color: var(--dp-borde-hover);
+}
+
+.dp-valor {
+  color: var(--text-h);
+  font-family: var(--dp-mono);
+  font-size: 14px;
+}
+
+/* --- Panel --- */
+
+.dp-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  width: 296px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+}
+
+.dp-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dp-mes {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dp-mono {
+  font-family: var(--dp-mono);
+}
+
+.dp-nav {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+
+.dp-nav:hover {
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+.dp-semana,
+.dp-grilla {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.dp-semana {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.dp-dia {
+  position: relative;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-h);
+  font-family: var(--dp-mono) !important;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 150ms, background-color 150ms;
+}
+
+.dp-dia:hover {
+  border-color: var(--border);
+}
+
+.dp-dia.fuera {
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* Hoy: un punto debajo del número. */
+.dp-dia.hoy::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateX(-50%);
+}
+
+.dp-dia.elegido,
+.dp-dia.elegido:hover {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--text-h);
+}
+
+/* --- Pie --- */
+
+.dp-pie {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.dp-hoy {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+
+.dp-hoy:hover {
+  border-color: var(--dp-borde-hover);
+  color: var(--text-h);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-disparador,
+  .dp-nav,
+  .dp-dia,
+  .dp-hoy {
+    transition: none;
+  }
+}

@@ -1,10 +1,12 @@
+import DatePicker from '../ui/date-picker'
+
 function CanchasControls({ fecha, onFechaChange }) {
   return (
     <div className="canchas-controls">
-      <label className="config-field">
-        <span className="config-label">Fecha</span>
-        <input className="config-input" type="date" value={fecha} onChange={(e) => onFechaChange(e.target.value)} />
-      </label>
+      <div className="config-field">
+        <span className="config-label" id="canchas-fecha-label">Fecha</span>
+        <DatePicker id="canchas-fecha" aria-labelledby="canchas-fecha-label" value={fecha} onChange={onFechaChange} />
+      </div>
     </div>
   )
 }
