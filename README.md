@@ -168,6 +168,7 @@ Opciones adicionales:
 --deposit NUMBER monto de seña, por defecto 5000.00
 --open HH:MM     hora de apertura, por defecto 09:00
 --close HH:MM    hora de cierre, por defecto 23:00
+--duration N     duración de cada turno en minutos, por defecto 90
 ```
 
 El subdominio se utiliza como slug y debe contener únicamente letras

@@ -27,6 +27,10 @@ function ClubSettingsForm({ form, loading, saved, error, onChange, onSubmit }) {
           <span className="config-label">Hora de cierre</span>
           <input className="config-input" name="hora_cierre" type="time" value={form.hora_cierre} onChange={onChange} />
         </label>
+        <label className="config-field">
+          <span className="config-label">Duración del turno (min)</span>
+          <input className="config-input" name="duracion_turno" type="number" min="30" max="240" step="5" value={form.duracion_turno ?? 90} onChange={onChange} required />
+        </label>
       </div>
 
       <h2 className="config-section-title">Datos del club</h2>

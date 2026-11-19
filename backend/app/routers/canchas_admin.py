@@ -58,7 +58,7 @@ def _validar_cancha_y_hora(
         config = get_configuracion(db, club_id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
-    if hora not in generar_horas(config.hora_apertura, config.hora_cierre):
+    if hora not in generar_horas(config.hora_apertura, config.hora_cierre, config.duracion_turno):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST, detail="Horario fuera de la grilla del club"
         )
@@ -155,10 +155,12 @@ def crear_turno_fijo(
         config = get_configuracion(db, tenant.club.id)
     except SinConfiguracionError as exc:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
-    horas = generar_horas(config.hora_apertura, config.hora_cierre)
+    horas = generar_horas(config.hora_apertura, config.hora_cierre, config.duracion_turno)
 
     if payload.hora_fin is not None:
-        if not hora_fin_valida(payload.hora_fin, horas, config.hora_cierre):
+        if not hora_fin_valida(
+            payload.hora_fin, horas, config.hora_cierre, config.duracion_turno
+        ):
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
                 detail="El horario de fin debe ser un final válido de la grilla del club",

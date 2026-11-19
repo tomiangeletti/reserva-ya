@@ -5,11 +5,11 @@ function diaDeFecha(fecha) {
   return new Date(y, m - 1, d).getDay()
 }
 
-function sumar90(hora) {
+function sumarMinutos(hora, minutos) {
   const [h, m] = hora.split(':').map(Number)
-  const total = h * 60 + m + 90
+  const total = h * 60 + m + minutos
   const horas = Math.floor(total / 60) % 24
   return `${String(horas).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
 }
 
-export { DIAS, diaDeFecha, sumar90 }
+export { DIAS, diaDeFecha, sumarMinutos }

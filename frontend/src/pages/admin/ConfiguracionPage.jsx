@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../../api/client'
 import ClubSettingsForm from '../../components/ConfiguracionPage/ClubSettingsForm'
 import FixedTurnsSection from '../../components/ConfiguracionPage/FixedTurnsSection'
+import { sumarMinutos } from '../../components/CanchasPage/utils'
 import './ConfiguracionPage.css'
 
 function toTimeInput(value) {
   return value?.slice(0, 5) ?? ''
 }
 
-function horasDeGrilla(apertura, cierre) {
+function horasDeGrilla(apertura, cierre, duracion) {
   const a = new Date(2000, 0, 1, Number(apertura?.slice(0, 2) ?? 0), Number(apertura?.slice(3, 5) ?? 0))
   let c = new Date(2000, 0, 1, Number(cierre?.slice(0, 2) ?? 0), Number(cierre?.slice(3, 5) ?? 0))
   if (cierre === '23:59') {
@@ -19,9 +20,9 @@ function horasDeGrilla(apertura, cierre) {
   }
   const horas = []
   const actual = new Date(a)
-  while (actual.getTime() + 90 * 60000 <= c.getTime()) {
+  while (actual.getTime() + duracion * 60000 <= c.getTime()) {
     horas.push(`${String(actual.getHours()).padStart(2, '0')}:${String(actual.getMinutes()).padStart(2, '0')}`)
-    actual.setTime(actual.getTime() + 90 * 60000)
+    actual.setTime(actual.getTime() + duracion * 60000)
   }
   return horas
 }
@@ -50,7 +51,9 @@ function ConfiguracionPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const horas = horasDeGrilla(form?.hora_apertura, form?.hora_cierre)
+  const duracion = Number(form?.duracion_turno ?? 90)
+  const horas = horasDeGrilla(form?.hora_apertura, form?.hora_cierre, duracion)
+  const finales = horas.map((hora) => sumarMinutos(hora, duracion))
   const cierreEsMedianoche = form?.hora_cierre === '00:00' || form?.hora_cierre === '23:59'
 
   function handleChange(e) {
@@ -69,6 +72,7 @@ function ConfiguracionPage() {
       if (payload[key]) payload[key] = `${payload[key]}:00`
       else delete payload[key]
     }
+    payload.duracion_turno = Number(payload.duracion_turno)
     try {
       const updated = await apiFetch('/config', { method: 'PATCH', body: payload })
       setForm({ ...updated, hora_apertura: toTimeInput(updated.hora_apertura), hora_cierre: toTimeInput(updated.hora_cierre) })
@@ -84,7 +88,7 @@ function ConfiguracionPage() {
     setTurnoForm((current) => {
       if (!('hora_desde' in changes)) return { ...current, ...changes }
       const index = horas.indexOf(changes.hora_desde)
-      const siguiente = horas[index + 1] ?? (cierreEsMedianoche ? '00:00' : '')
+      const siguiente = finales[index] ?? ''
       return { ...current, ...changes, hora_hasta: siguiente }
     })
   }
@@ -96,7 +100,7 @@ function ConfiguracionPage() {
       await apiFetch('/turnos-fijos', {
         method: 'POST',
         body: {
-          cancha_id: Number(turnoForm.cancha_id),
+          cancha_id: turnoForm.cancha_id,
           dia_semana: Number(turnoForm.dia_semana),
           hora_inicio: `${turnoForm.hora_desde}:00`,
           hora_fin: turnoForm.hora_hasta ? `${turnoForm.hora_hasta}:00` : null,
@@ -139,6 +143,7 @@ function ConfiguracionPage() {
         showForm={showTurno}
         form={turnoForm}
         horas={horas}
+        finales={finales}
         cierreEsMedianoche={cierreEsMedianoche}
         onToggleForm={() => setShowTurno((visible) => !visible)}
         onChange={handleTurnoChange}

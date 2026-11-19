@@ -4,7 +4,7 @@ import { apiFetch } from '../../api/client'
 import CanchasControls from '../../components/CanchasPage/CanchasControls'
 import CanchasModal from '../../components/CanchasPage/CanchasModal'
 import Grilla from '../../components/CanchasPage/Grilla'
-import { diaDeFecha, sumar90 } from '../../components/CanchasPage/utils'
+import { diaDeFecha, sumarMinutos } from '../../components/CanchasPage/utils'
 import './CanchasPage.css'
 
 function hoyLocal() {
@@ -17,24 +17,27 @@ function CanchasPage() {
   const [grilla, setGrilla] = useState([])
   const [turnos, setTurnos] = useState([])
   const [bloqueos, setBloqueos] = useState([])
+  const [config, setConfig] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [modal, setModal] = useState(null)
 
   const cargarDatos = useCallback(async (f) => {
-    const [g, t, b] = await Promise.all([
+    const [g, t, b, cfg] = await Promise.all([
       apiFetch(`/canchas/grilla?fecha=${f}`),
       apiFetch('/turnos-fijos'),
       apiFetch(`/bloqueos-puntuales?fecha=${f}`),
+      apiFetch('/config'),
     ])
-    return { g, t, b }
+    return { g, t, b, cfg }
   }, [])
 
-  const aplicar = useCallback(({ g, t, b }) => {
+  const aplicar = useCallback(({ g, t, b, cfg }) => {
     setError('')
     setGrilla(g)
     setTurnos(t)
     setBloqueos(b)
+    setConfig(cfg)
   }, [])
 
   useEffect(() => {
@@ -86,7 +89,7 @@ function CanchasPage() {
             cancha_id: modal.canchaId,
             dia_semana: diaDeFecha(fecha),
             hora_inicio: `${modal.hora}:00`,
-            hora_fin: `${sumar90(modal.hora)}:00`,
+            hora_fin: `${sumarMinutos(modal.hora, config?.duracion_turno ?? 90)}:00`,
             nombre: modal.nombre,
           },
         })
@@ -133,6 +136,7 @@ function CanchasPage() {
       <CanchasModal
         modal={modal}
         fecha={fecha}
+        duracion={config?.duracion_turno ?? 90}
         onChange={setModal}
         onClose={() => setModal(null)}
         onSave={guardarNuevo}

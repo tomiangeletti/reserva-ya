@@ -52,6 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--deposit", type=_parse_decimal, default=Decimal("5000.00"))
     parser.add_argument("--open", dest="opening_time", type=_parse_time, default=time(9, 0))
     parser.add_argument("--close", dest="closing_time", type=_parse_time, default=time(23, 0))
+    parser.add_argument("--duration", dest="duracion_turno", type=int, default=90, help="Cantidad de minutos de los turnos.")
     return parser
 
 

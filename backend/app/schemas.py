@@ -145,6 +145,7 @@ class ConfiguracionClubOut(BaseModel):
     telefono_whatsapp: str
     hora_apertura: time
     hora_cierre: time
+    duracion_turno: int
 
 
 class ConfiguracionClubUpdate(BaseModel):
@@ -158,6 +159,7 @@ class ConfiguracionClubUpdate(BaseModel):
     telefono_whatsapp: str | None = Field(default=None, max_length=30)
     hora_apertura: time | None = None
     hora_cierre: time | None = None
+    duracion_turno: int | None = Field(default=None, ge=30, le=240, multiple_of=5)
 
 # ---------- Password Reset ----------
 class ForgotPasswordRequest(BaseModel):

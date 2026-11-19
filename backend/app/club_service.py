@@ -14,6 +14,7 @@ from .models import (
     ConfiguracionClub,
 )
 from .security import hash_password
+from .slots import ConfiguracionHorariaInvalida, validar_configuracion_horaria
 
 TRIAL_DAYS = 14
 DEFAULT_COURT_COUNT = 3
@@ -106,6 +107,7 @@ def create_club(
     deposit: Decimal = DEFAULT_DEPOSIT,
     opening_time: time = DEFAULT_OPENING_TIME,
     closing_time: time = DEFAULT_CLOSING_TIME,
+    duracion_turno: int = 90,
 ) -> Club:
     name = name.strip()
     if not name or len(name) > 150:
@@ -118,6 +120,11 @@ def create_club(
         raise ClubProvisioningError("La cantidad de canchas debe estar entre 1 y 50.")
     if court_price <= 0 or deposit <= 0:
         raise ClubProvisioningError("El precio y la seña deben ser mayores a cero.")
+
+    try:
+        validar_configuracion_horaria(opening_time, closing_time, duracion_turno)
+    except ConfiguracionHorariaInvalida as exc:
+        raise ClubProvisioningError(str(exc)) from exc
 
     subdomain = normalize_subdomain(subdomain)
     username = normalize_username(username)
@@ -176,6 +183,7 @@ def create_club(
             hora_cierre=closing_time,
             created_at=now,
             updated_at=now,
+            duracion_turno=duracion_turno,
         )
     )
 

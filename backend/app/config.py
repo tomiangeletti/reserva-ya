@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
 
     tenant_base_domain: str = "reservas-ya.com.ar"
+    club_timezone: str = "America/Argentina/Buenos_Aires"
 
     environment: str = "development"
 

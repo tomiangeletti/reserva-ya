@@ -1,6 +1,11 @@
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 
-function FixedTurnForm({ form, canchas, horas, cierreEsMedianoche, onChange, onSubmit }) {
+function FixedTurnForm({ form, canchas, horas, finales, cierreEsMedianoche, onChange, onSubmit }) {
+  // Fines posibles: el final de cada turno desde el elegido en adelante.
+  const desde = horas.indexOf(form.hora_desde)
+  const opcionesHasta = desde < 0 ? [] : finales.slice(desde)
+  if (desde >= 0 && cierreEsMedianoche && !opcionesHasta.includes('00:00')) opcionesHasta.push('00:00')
+
   return (
     <form className="turno-form" onSubmit={onSubmit}>
       <label className="config-field">
@@ -26,8 +31,7 @@ function FixedTurnForm({ form, canchas, horas, cierreEsMedianoche, onChange, onS
         <span className="config-label">Hasta</span>
         <select className="config-input" value={form.hora_hasta} onChange={(e) => onChange({ hora_hasta: e.target.value })} required>
           <option value="">—</option>
-          {horas.filter((hora) => hora > form.hora_desde).map((hora) => <option key={hora} value={hora}>{hora}</option>)}
-          {cierreEsMedianoche && <option value="00:00">00:00</option>}
+          {opcionesHasta.map((hora) => <option key={hora} value={hora}>{hora}</option>)}
         </select>
       </label>
       <label className="config-field">
@@ -41,7 +45,7 @@ function FixedTurnForm({ form, canchas, horas, cierreEsMedianoche, onChange, onS
   )
 }
 
-function FixedTurnsSection({ canchas, turnos, showForm, form, horas, cierreEsMedianoche, onToggleForm, onChange, onSubmit, onToggleTurno, onDeleteTurno }) {
+function FixedTurnsSection({ canchas, turnos, showForm, form, horas, finales, cierreEsMedianoche, onToggleForm, onChange, onSubmit, onToggleTurno, onDeleteTurno }) {
   return (
     <section className="config-card">
       <div className="config-card-header">
@@ -57,6 +61,7 @@ function FixedTurnsSection({ canchas, turnos, showForm, form, horas, cierreEsMed
           form={form}
           canchas={canchas}
           horas={horas}
+          finales={finales}
           cierreEsMedianoche={cierreEsMedianoche}
           onChange={onChange}
           onSubmit={onSubmit}

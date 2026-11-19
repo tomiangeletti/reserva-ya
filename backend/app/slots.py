@@ -1,9 +1,11 @@
 from datetime import date, datetime, time, timedelta
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .config import settings
 from .models import (
     BloqueoPuntual,
     Cancha,
@@ -12,7 +14,6 @@ from .models import (
     TurnoFijo,
 )
 
-DURACION_TURNO = timedelta(minutes=90)
 ESTADOS_ACTIVOS = ("PENDIENTE", "CONFIRMADA")
 
 
@@ -39,8 +40,50 @@ def _cierre_como_fin(cierre: time) -> time:
     return time(0, 0) if cierre == time(23, 59) else cierre
 
 
-def generar_horas(apertura: time, cierre: time) -> list[time]:
-    """Grilla de horas de inicio de turno (turnos de 1h30)."""
+DURACION_TURNO_MIN = 30
+DURACION_TURNO_MAX = 240
+DURACION_TURNO_PASO = 5
+
+
+class ConfiguracionHorariaInvalida(ValueError):
+    pass
+
+
+def validar_configuracion_horaria(
+    apertura: time, cierre: time, duracion_minutos: int
+) -> list[time]:
+    """Valida duración y horario; devuelve la grilla resultante."""
+    if not (
+        DURACION_TURNO_MIN <= duracion_minutos <= DURACION_TURNO_MAX
+        and duracion_minutos % DURACION_TURNO_PASO == 0
+    ):
+        raise ConfiguracionHorariaInvalida(
+            f"La duración del turno debe estar entre {DURACION_TURNO_MIN} y "
+            f"{DURACION_TURNO_MAX} minutos, en múltiplos de {DURACION_TURNO_PASO}."
+        )
+    if apertura == cierre:
+        raise ConfiguracionHorariaInvalida(
+            "La hora de apertura y la de cierre no pueden ser iguales."
+        )
+    horas = generar_horas(apertura, cierre, duracion_minutos)
+    if not horas:
+        raise ConfiguracionHorariaInvalida(
+            "Con ese horario no entra ningún turno de la duración elegida."
+        )
+    return horas
+
+
+def hoy_local() -> date:
+    """Fecha actual en la zona horaria del club (no la del servidor)."""
+    return datetime.now(ZoneInfo(settings.club_timezone)).date()
+
+
+def generar_horas(apertura: time, cierre: time, duracion_minutos: int) -> list[time]:
+    """Grilla de horas de inicio de turno."""
+    if duracion_minutos <= 0:
+        # Defensa: una duración no positiva haría un loop infinito.
+        return []
+    minutos = timedelta(minutes=duracion_minutos)
     base = datetime(2000, 1, 1)
     inicio = datetime.combine(base, apertura)
     fin = datetime.combine(base, _cierre_como_fin(cierre))
@@ -50,17 +93,22 @@ def generar_horas(apertura: time, cierre: time) -> list[time]:
         fin += timedelta(days=1)
     horas: list[time] = []
     actual = inicio
-    while actual + DURACION_TURNO <= fin:
+    while actual + minutos <= fin:
         horas.append(actual.time())
-        actual += DURACION_TURNO
+        actual += minutos
     return horas
 
 
-def hora_fin_valida(hora_fin: time, horas: list[time], cierre: time) -> bool:
-    """Permite cierre a la hora del club, incluso si es medianoche."""
+def hora_fin_valida(
+    hora_fin: time, horas: list[time], cierre: time, duracion_minutos: int
+) -> bool:
+    """Un fin válido es el final de algún turno de la grilla o el cierre del club."""
     if hora_fin == _cierre_como_fin(cierre):
         return True
-    return hora_fin in horas
+    duracion = timedelta(minutes=duracion_minutos)
+    base = datetime(2000, 1, 1)
+    finales = {(datetime.combine(base, h) + duracion).time() for h in horas}
+    return hora_fin in finales
 
 
 def dia_semana_domingo_inicio(fecha: date) -> int:
@@ -90,7 +138,7 @@ def slots_del_dia(
     La reserva tiene prioridad sobre el resto al pintar un slot.
     """
     config = get_configuracion(db, club_id)
-    horas = generar_horas(config.hora_apertura, config.hora_cierre)
+    horas = generar_horas(config.hora_apertura, config.hora_cierre, config.duracion_turno)
 
     reserva_query = select(Reserva).where(
         Reserva.club_id == club_id,

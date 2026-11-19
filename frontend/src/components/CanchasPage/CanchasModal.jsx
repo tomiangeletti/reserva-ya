@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 
-import { DIAS, diaDeFecha, sumar90 } from './utils'
+import { DIAS, diaDeFecha, sumarMinutos } from './utils'
 
 const ESTADO_LABEL = {
   reserva_pendiente: 'Reserva pendiente',
   reserva_confirmada: 'Reserva confirmada',
 }
 
-function CanchasModal({ modal, fecha, onChange, onClose, onSave, onToggleTurno, onDeleteTurno, onDeleteBloqueo }) {
+function CanchasModal({ modal, fecha, duracion, onChange, onClose, onSave, onToggleTurno, onDeleteTurno, onDeleteBloqueo }) {
   if (!modal) return null
 
   return (
@@ -27,7 +27,7 @@ function CanchasModal({ modal, fecha, onChange, onClose, onSave, onToggleTurno, 
               <span className="config-label">A nombre de</span>
               <input className="config-input" placeholder="Ej: Juan" value={modal.nombre} onChange={(e) => onChange({ ...modal, nombre: e.target.value })} />
             </label>
-            {modal.modo === 'turno_fijo' && <p className="modal-hint">Se repetirá cada {DIAS[diaDeFecha(fecha)]} de {modal.hora} a {sumar90(modal.hora)} hs.</p>}
+            {modal.modo === 'turno_fijo' && <p className="modal-hint">Se repetirá cada {DIAS[diaDeFecha(fecha)]} de {modal.hora} a {sumarMinutos(modal.hora, duracion)} hs.</p>}
             <div className="modal-actions">
               <button className="mini-btn" onClick={onClose}>Cancelar</button>
               <button className="config-save" onClick={onSave} disabled={!modal.nombre.trim()}>Ocupar turno</button>
