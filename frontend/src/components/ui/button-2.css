@@ -75,6 +75,59 @@
   background: var(--accent-hover);
 }
 
+/*
+ * Destello: un brillo tenue que gira por el borde.
+ * ::before es un degradé cónico grande que rota con transform (funciona en
+ * cualquier navegador); ::after tapa el interior y deja ver solo un anillo
+ * de 1px junto al borde. `overflow: hidden` recorta el resto.
+ */
+.btn2.btn2-destello::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 300%;
+  aspect-ratio: 1;
+  background: conic-gradient(
+    transparent 0deg 250deg,
+    rgba(255, 255, 255, 0.55) 300deg,
+    rgba(255, 255, 255, 0.9) 330deg,
+    transparent 360deg
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+  pointer-events: none;
+  animation: btn2-girar 4s linear infinite;
+}
+
+.btn2.btn2-destello::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  border-radius: 7px;
+  background: inherit;
+  pointer-events: none;
+}
+
+.btn2.btn2-destello .btn2-glow {
+  z-index: 1;
+}
+
+.btn2.btn2-destello .btn2-content {
+  z-index: 2;
+}
+
+.btn2.btn2-destello:disabled::before {
+  display: none;
+}
+
+@keyframes btn2-girar {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 /* Secundario: sin relleno. */
 .btn2.btn2-sec {
   background: transparent;
@@ -108,5 +161,10 @@
   .btn2,
   .btn2-glow {
     transition: none;
+  }
+
+  /* Con movimiento reducido el destello sigue, pero al doble de lento. */
+  .btn2.btn2-destello::before {
+    animation-duration: 8s;
   }
 }

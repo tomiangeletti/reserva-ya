@@ -26,7 +26,7 @@ function BookingForm({ form, enviando, error, onChange, onSubmit, onBack }) {
       {error && <p className="reservar-error">{error}</p>}
       <div className="reservar-acciones">
         <Button2 className="reservar-btn-sec btn2-sec" onClick={onBack}>Volver</Button2>
-        <Button2 type="submit" className="reservar-btn btn2-primary" disabled={enviando}>{enviando ? 'Reservando…' : 'Confirmar reserva'}</Button2>
+        <Button2 type="submit" className="reservar-btn btn2-primary btn2-destello" disabled={enviando}>{enviando ? 'Reservando…' : 'Confirmar reserva'}</Button2>
       </div>
     </form>
   )
