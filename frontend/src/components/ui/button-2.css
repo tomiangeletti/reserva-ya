@@ -1,0 +1,112 @@
+/*
+ * button-2: botón con brillo que sigue al mouse, con los colores del sistema
+ * (tokens de index.css). Superficie plana, borde de 1px y radio de 8px.
+ */
+
+.btn2 {
+  --btn2-glow: rgba(59, 130, 246, 0.18);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text-h);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 150ms, background-color 150ms, color 150ms;
+}
+
+.btn2:hover:not(:disabled) {
+  border-color: #3a434a;
+}
+
+.btn2:focus {
+  outline: none;
+}
+
+.btn2:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn2-glow {
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  transition: opacity 300ms;
+}
+
+.btn2-content {
+  position: relative;
+  z-index: 1;
+  display: inherit;
+  flex-direction: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+  gap: inherit;
+}
+
+/* Seleccionado (día, cancha, horario). */
+.btn2.activo,
+.btn2.activo:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Acción principal. */
+.btn2.btn2-primary {
+  --btn2-glow: rgba(255, 255, 255, 0.22);
+
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.btn2.btn2-primary:hover:not(:disabled) {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+/* Secundario: sin relleno. */
+.btn2.btn2-sec {
+  background: transparent;
+  color: var(--text);
+}
+
+/* WhatsApp: el verde de éxito del sistema. */
+.btn2.btn2-wa {
+  --btn2-glow: rgba(255, 255, 255, 0.25);
+
+  border-color: var(--success);
+  background: var(--success);
+  color: #071b16;
+}
+
+.btn2:disabled {
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.btn2.btn2-primary:disabled {
+  border-style: solid;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn2,
+  .btn2-glow {
+    transition: none;
+  }
+}

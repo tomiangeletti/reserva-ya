@@ -11,6 +11,7 @@ import CourtPicker from '../../components/ReservarPage/CourtPicker'
 import DatePicker from '../../components/ReservarPage/DatePicker'
 import DepositInfo from '../../components/ReservarPage/DepositInfo'
 import TimeSlots from '../../components/ReservarPage/TimeSlots'
+import Button2 from '../../components/ui/button-2'
 import './ReservarPage.css'
 
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
@@ -108,7 +109,12 @@ function ReservarPage() {
     const nombre = canchas.find((item) => item.id === cancha)?.nombre
     setTurno({ cancha_id: cancha, cancha_nombre: nombre, fecha, hora })
     setError('')
+  }
+
+  function continuar() {
+    if (!turno) return
     setPaso(2)
+    window.scrollTo({ top: 0 })
   }
 
   async function confirmar(e) {
@@ -157,22 +163,43 @@ function ReservarPage() {
   return (
     <main className="reservar-page">
       <div className="reservar-wrap">
-        <BookingHeader />
+        <BookingHeader paso={paso} />
         <BookingProgress paso={paso} />
 
         {paso === 1 && (
           <section className="reservar-step">
-            <h2 className="reservar-step-title">1 · Elegí día y horario</h2>
-            <DatePicker dias={dias} fecha={fecha} onSelect={seleccionarFecha} />
-            <CourtPicker canchas={canchas} cancha={cancha} onSelect={seleccionarCancha} />
+            <h2 className="reservar-step-title">Elegí tu turno</h2>
+            <div className="reservar-grupo">
+              <p className="reservar-grupo-label"><span>Día</span><span>{MESES[Number(fecha.slice(5, 7)) - 1]}</span></p>
+              <DatePicker dias={dias} fecha={fecha} onSelect={seleccionarFecha} />
+            </div>
+            <div className="reservar-grupo">
+              <p className="reservar-grupo-label"><span>Cancha</span></p>
+              <CourtPicker canchas={canchas} cancha={cancha} onSelect={seleccionarCancha} />
+            </div>
             {error && <p className="reservar-error">{error}</p>}
-            <TimeSlots loading={loading} horarios={horarios} onSelect={elegirTurno} />
+            <div className="reservar-grupo">
+              <p className="reservar-grupo-label">
+                <span>Horario</span>
+                {config.duracion_turno && <span className="reservar-mono">{config.duracion_turno} min</span>}
+              </p>
+              <TimeSlots loading={loading} horarios={horarios} seleccionada={turno?.hora} onSelect={elegirTurno} />
+            </div>
+            <div className="reservar-barra">
+              <div className="reservar-barra-info" aria-live="polite">
+                <p className="reservar-barra-turno">
+                  {turno ? `${formatoDiaLargo(turno.fecha)}, ${turno.cancha_nombre}, ${turno.hora} hs` : 'Elegí un horario'}
+                </p>
+                <p className="reservar-barra-senia">Seña <span className="reservar-mono">{formatoPrecio(config.monto_senia_default)}</span></p>
+              </div>
+              <Button2 className="btn2-primary" disabled={!turno} onClick={continuar}>Continuar</Button2>
+            </div>
           </section>
         )}
 
         {paso === 2 && turno && (
           <section className="reservar-step">
-            <h2 className="reservar-step-title">2 · Confirmá y señá</h2>
+            <h2 className="reservar-step-title">Confirmá tus datos</h2>
             <BookingSummary turno={turno} config={config} formatoDia={formatoDiaLargo} formatoPrecio={formatoPrecio} />
             <DepositInfo config={config} formatoPrecio={formatoPrecio} />
             <BookingForm form={form} enviando={enviando} error={error} onChange={setForm} onSubmit={confirmar} onBack={() => setPaso(1)} />

@@ -1,10 +1,12 @@
+import Button2 from '../ui/button-2'
+
 function CourtPicker({ canchas, cancha, onSelect }) {
   return (
     <div className="reservar-canchas">
       {canchas.map((item) => (
-        <button key={item.id} type="button" className={`reservar-cancha ${cancha === item.id ? 'activo' : ''}`} onClick={() => onSelect(item.id)}>
+        <Button2 key={item.id} className={`reservar-cancha ${cancha === item.id ? 'activo' : ''}`} aria-pressed={cancha === item.id} onClick={() => onSelect(item.id)}>
           {item.nombre}
-        </button>
+        </Button2>
       ))}
     </div>
   )

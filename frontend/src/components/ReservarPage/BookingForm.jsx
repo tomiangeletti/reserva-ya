@@ -1,3 +1,5 @@
+import Button2 from '../ui/button-2'
+
 function BookingForm({ form, enviando, error, onChange, onSubmit, onBack }) {
   return (
     <form className="reservar-form" onSubmit={onSubmit}>
@@ -23,8 +25,8 @@ function BookingForm({ form, enviando, error, onChange, onSubmit, onBack }) {
       </label>
       {error && <p className="reservar-error">{error}</p>}
       <div className="reservar-acciones">
-        <button type="button" className="reservar-btn-sec" onClick={onBack}>Volver</button>
-        <button type="submit" className="reservar-btn" disabled={enviando}>{enviando ? 'Reservando…' : 'Confirmar reserva'}</button>
+        <Button2 className="reservar-btn-sec btn2-sec" onClick={onBack}>Volver</Button2>
+        <Button2 type="submit" className="reservar-btn btn2-primary" disabled={enviando}>{enviando ? 'Reservando…' : 'Confirmar reserva'}</Button2>
       </div>
     </form>
   )
