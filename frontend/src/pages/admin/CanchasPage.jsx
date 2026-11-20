@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { apiFetch } from '../../api/client'
 import CanchasControls from '../../components/CanchasPage/CanchasControls'
 import CanchasModal from '../../components/CanchasPage/CanchasModal'
-import Grilla from '../../components/CanchasPage/Grilla'
+import Grilla, { GrillaLeyenda } from '../../components/CanchasPage/Grilla'
 import { diaDeFecha, sumarMinutos } from '../../components/CanchasPage/utils'
 import './CanchasPage.css'
 
@@ -127,15 +127,23 @@ function CanchasPage() {
 
   return (
     <div className="canchas-page">
-      <h1 className="admin-title">Canchas y turnos</h1>
-      <p className="admin-hint">Grilla del día: tocá una celda libre para ocuparla (turno fijo o WhatsApp), o una ocupada para ver el detalle y liberarla.</p>
+      <header className="canchas-header">
+        <h1 className="canchas-titulo">Canchas y turnos</h1>
+        <p className="canchas-ayuda">Tocá un horario libre para ocuparlo con una reserva por WhatsApp o un turno fijo. Tocá uno ocupado para ver el detalle o liberarlo.</p>
+      </header>
       <CanchasControls fecha={fecha} onFechaChange={setFecha} />
-      {error && <p className="login-error">{error}</p>}
-      {loading && grilla.length === 0 && <p className="admin-hint">Cargando…</p>}
-      {!loading && grilla.length > 0 && <Grilla data={grilla} onCellClick={abrirCelda} />}
+      {error && !modal && <p className="canchas-error">{error}</p>}
+      {loading && grilla.length === 0 && <p className="canchas-ayuda">Cargando…</p>}
+      {!loading && grilla.length > 0 && (
+        <>
+          <GrillaLeyenda />
+          <Grilla data={grilla} onCellClick={abrirCelda} />
+        </>
+      )}
       <CanchasModal
         modal={modal}
         fecha={fecha}
+        error={error}
         duracion={config?.duracion_turno ?? 90}
         onChange={setModal}
         onClose={() => setModal(null)}
