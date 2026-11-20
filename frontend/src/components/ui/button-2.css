@@ -128,6 +128,20 @@
   }
 }
 
+/* Peligro (cerrar sesión, borrar): neutro en reposo, rojo del sistema al pasar el mouse. */
+.btn2.btn2-peligro {
+  --btn2-glow: rgba(255, 93, 93, 0.16);
+
+  background: transparent;
+  color: var(--text);
+}
+
+.btn2.btn2-peligro:hover:not(:disabled),
+.btn2.btn2-peligro:focus-visible {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
 /* Secundario: sin relleno. */
 .btn2.btn2-sec {
   background: transparent;

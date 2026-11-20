@@ -11,7 +11,7 @@ import './button-2.css'
  * y cualquier prop de <button>; si se pasa `href` se renderiza como enlace.
  *
  * Modificadores de estilo (en button-2.css): `activo`, `btn2-primary`,
- * `btn2-sec`, `btn2-wa` y `btn2-destello` (brillo que gira por el borde).
+ * `btn2-sec`, `btn2-wa`, `btn2-peligro` y `btn2-destello` (brillo que gira por el borde).
  */
 export function Button2({ children, className = '', href, disabled, ...props }) {
   const divRef = useRef(null)
