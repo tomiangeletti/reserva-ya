@@ -21,9 +21,12 @@ function AdminLayout() {
         .catch(() => {})
     cargar()
     const id = setInterval(cargar, 30000)
+    // Las pantallas que confirman o cancelan reservas avisan para actualizar el número al instante.
+    window.addEventListener('reservas-cambiaron', cargar)
     return () => {
       activo = false
       clearInterval(id)
+      window.removeEventListener('reservas-cambiaron', cargar)
     }
   }, [isAuthenticated])
 

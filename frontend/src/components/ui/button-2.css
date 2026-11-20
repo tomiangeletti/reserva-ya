@@ -1,0 +1,184 @@
+/*
+ * button-2: botón con brillo que sigue al mouse, con los colores del sistema
+ * (tokens de index.css). Superficie plana, borde de 1px y radio de 8px.
+ */
+
+.btn2 {
+  --btn2-glow: rgba(59, 130, 246, 0.18);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text-h);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 150ms, background-color 150ms, color 150ms;
+}
+
+.btn2:hover:not(:disabled) {
+  border-color: #3a434a;
+}
+
+.btn2:focus {
+  outline: none;
+}
+
+.btn2:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn2-glow {
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  transition: opacity 300ms;
+}
+
+.btn2-content {
+  position: relative;
+  z-index: 1;
+  display: inherit;
+  flex-direction: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+  gap: inherit;
+}
+
+/* Seleccionado (día, cancha, horario). */
+.btn2.activo,
+.btn2.activo:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Acción principal. */
+.btn2.btn2-primary {
+  --btn2-glow: rgba(255, 255, 255, 0.22);
+
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.btn2.btn2-primary:hover:not(:disabled) {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+/*
+ * Destello: un brillo tenue que gira por el borde.
+ * ::before es un degradé cónico grande que rota con transform (funciona en
+ * cualquier navegador); ::after tapa el interior y deja ver solo un anillo
+ * de 1px junto al borde. `overflow: hidden` recorta el resto.
+ */
+.btn2.btn2-destello::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 300%;
+  aspect-ratio: 1;
+  background: conic-gradient(
+    transparent 0deg 250deg,
+    rgba(255, 255, 255, 0.55) 300deg,
+    rgba(255, 255, 255, 0.9) 330deg,
+    transparent 360deg
+  );
+  transform: translate(-50%, -50%) rotate(0deg);
+  pointer-events: none;
+  animation: btn2-girar 4s linear infinite;
+}
+
+.btn2.btn2-destello::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  border-radius: 7px;
+  background: inherit;
+  pointer-events: none;
+}
+
+.btn2.btn2-destello .btn2-glow {
+  z-index: 1;
+}
+
+.btn2.btn2-destello .btn2-content {
+  z-index: 2;
+}
+
+.btn2.btn2-destello:disabled::before {
+  display: none;
+}
+
+@keyframes btn2-girar {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Peligro (cerrar sesión, borrar): neutro en reposo, rojo del sistema al pasar el mouse. */
+.btn2.btn2-peligro {
+  --btn2-glow: rgba(255, 93, 93, 0.16);
+
+  background: transparent;
+  color: var(--text);
+}
+
+.btn2.btn2-peligro:hover:not(:disabled),
+.btn2.btn2-peligro:focus-visible {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+/* Secundario: sin relleno. */
+.btn2.btn2-sec {
+  background: transparent;
+  color: var(--text);
+}
+
+/* WhatsApp: el verde de éxito del sistema. */
+.btn2.btn2-wa {
+  --btn2-glow: rgba(255, 255, 255, 0.25);
+
+  border-color: var(--success);
+  background: var(--success);
+  color: #071b16;
+}
+
+.btn2:disabled {
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.btn2.btn2-primary:disabled {
+  border-style: solid;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn2,
+  .btn2-glow {
+    transition: none;
+  }
+
+  /* Con movimiento reducido el destello sigue, pero al doble de lento. */
+  .btn2.btn2-destello::before {
+    animation-duration: 8s;
+  }
+}

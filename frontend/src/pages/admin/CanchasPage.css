@@ -1,10 +1,232 @@
+/*
+ * /admin/canchas con la estética de /reservar (Geist, superficies planas,
+ * bordes de 1px, radio de 8px). Todo va bajo .canchas-page o con prefijo
+ * propio para no cambiar otras pantallas del admin.
+ */
+
+.canchas-page {
+  font-family: 'Geist', var(--sans);
+}
+
+.canchas-header {
+  max-width: 72ch;
+  margin-bottom: 24px;
+}
+
+.canchas-titulo {
+  margin: 0 0 6px;
+  color: var(--text-h);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.canchas-ayuda {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.canchas-error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--danger-border);
+  border-radius: 8px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 13px;
+}
+
 .canchas-controls {
   display: flex;
   align-items: flex-end;
   gap: 24px;
   flex-wrap: wrap;
-  margin: 20px 0;
+  margin: 0 0 24px;
 }
+
+.canchas-page .config-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* --- Modal --- */
+
+.cmodal-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.cmodal {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  font-family: 'Geist', var(--sans);
+}
+
+.cmodal-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cmodal-titulo {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cmodal-cerrar {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+
+.cmodal-cerrar:hover {
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+.cmodal-cerrar:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.cmodal-detalle {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cmodal-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.cmodal-fila + .cmodal-fila {
+  border-top: 1px solid var(--border);
+}
+
+.cmodal-fila dt {
+  color: var(--text-muted);
+}
+
+.cmodal-fila dd {
+  margin: 0;
+  color: var(--text-h);
+  text-align: right;
+}
+
+.cmodal-mono {
+  font-family: 'Geist Mono', ui-monospace, Consolas, monospace;
+  font-size: 13px;
+}
+
+.cmodal-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cmodal-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.cmodal-opciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.cmodal-opciones .btn2 {
+  font-size: 14px;
+}
+
+.cmodal-nota {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.cmodal-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 150ms;
+}
+
+.cmodal-input:hover {
+  border-color: #3a434a;
+}
+
+.cmodal-input:focus {
+  border-color: var(--accent);
+}
+
+.cmodal-input::placeholder {
+  color: #56616a;
+}
+
+.cmodal-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--danger-border);
+  border-radius: 8px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.cmodal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cmodal-acciones .btn2 {
+  font-size: 14px;
+}
+
+.cmodal-espacio {
+  flex: 1;
+}
+
+/* --- Estilos anteriores, usados por otras pantallas del admin --- */
 
 .modal-backdrop {
   position: fixed;

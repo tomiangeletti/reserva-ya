@@ -1,17 +1,11 @@
+const ETIQUETAS = ['Elegí tu turno', 'Confirmá tus datos', 'Listo']
+
 function BookingProgress({ paso }) {
   return (
-    <div className="reservar-progreso" aria-label={`Paso ${paso} de 3`}>
-      {[['1', 'Elegí'], ['2', 'Confirmá'], ['3', 'Listo']].map(([numero, etiqueta], index) => {
-        const activo = paso === index + 1
-        const completado = paso > index + 1
-        return (
-          <div className={`reservar-progreso-item ${activo ? 'activo' : ''} ${completado ? 'completado' : ''}`} key={numero}>
-            <span className="reservar-progreso-num">{completado ? '✓' : numero}</span>
-            <span>{etiqueta}</span>
-            {index < 2 && <span className="reservar-progreso-linea" aria-hidden="true" />}
-          </div>
-        )
-      })}
+    <div className="reservar-progreso" role="progressbar" aria-valuemin={1} aria-valuemax={3} aria-valuenow={paso} aria-valuetext={`Paso ${paso} de 3: ${ETIQUETAS[paso - 1]}`}>
+      {ETIQUETAS.map((etiqueta, index) => (
+        <span key={etiqueta} className={`reservar-progreso-seg ${paso > index ? 'hecho' : ''}`} />
+      ))}
     </div>
   )
 }
